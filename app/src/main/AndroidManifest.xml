@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.uwaterloo.navistore">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_INTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <meta-data
+            android:name="com.cyphy.sdk.key"
+            android:value="@string/cyphy_key" />
+
+        <service
+            android:name="com.cyphymedia.sdk.service.NewBeaconService"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
+
+        <receiver
+            android:name="com.cyphymedia.sdk.service.NewBeaconServiceReceiver"
+            android:enabled="false"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.cyphymedia.service.CyPhyBeacon.RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+        <!--<receiver android:name="org.altbeacon.beacon.startup.StartupBroadcastReceiver" >-->
+        <!--<intent-filter>-->
+        <!--<action android:name="android.intent.action.BOOT_COMPLETED" />-->
+        <!--<action android:name="android.intent.action.ACTION_POWER_CONNECTED" />-->
+        <!--<action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />-->
+        <!--</intent-filter>-->
+        <!--</receiver>-->
+
+        <service android:name="com.cyphymedia.sdk.service.NewBeaconJobService"
+            android:exported="false"
+            android:enabled="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <receiver
+            android:name="com.uwaterloo.navistore.CyPhy.CyPhyBeaconReceiver"
+            android:exported="false"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="com.cyphymedia.service.CyPhy.BEACON_RECEIVED" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>
