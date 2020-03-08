@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.View;
 
+import com.uwaterloo.navistore.BeaconCoordinates;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,25 +15,12 @@ import java.util.List;
 public class DemoView extends View {
 
     private List<BeaconDrawing> mBeaconDrawings;
+    private UserDrawing mUserDrawing;
 
-    private HashMap<String, Float> mBeaconXCoordinateMap;
-    private HashMap<String, Float> mBeaconYCoordinateMap;
-
-    public DemoView(Context context){
+    public DemoView(Context context, UserDrawing userDrawing){
         super(context);
+        mUserDrawing = userDrawing;
         mBeaconDrawings = new ArrayList<>();
-
-        mBeaconXCoordinateMap = new HashMap<>();
-        mBeaconYCoordinateMap = new HashMap<>();
-
-        mBeaconXCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32741", 25.0f);
-        mBeaconYCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32741", 25.0f);
-
-        mBeaconXCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32747", 1025.0f);
-        mBeaconYCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32747", 25.0f);
-
-        mBeaconXCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32750", 25.0f);
-        mBeaconYCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32750", 1025.0f);
     }
 
     public boolean containsBeacon(String bid) {
@@ -44,12 +33,11 @@ public class DemoView extends View {
     }
 
     public void registerBeaconDrawing(BeaconDrawing beaconDrawing) {
-        mBeaconDrawings.add(beaconDrawing);
-
         String bid = beaconDrawing.getBid();
-        if (mBeaconXCoordinateMap.containsKey(bid) && mBeaconYCoordinateMap.containsKey(bid)) {
-            float coordinateX = mBeaconXCoordinateMap.get(bid);
-            float coordinateY = mBeaconYCoordinateMap.get(bid);
+        if (BeaconCoordinates.getInstance().isBeaconValid(bid)) {
+            mBeaconDrawings.add(beaconDrawing);
+            float coordinateX = BeaconCoordinates.getInstance().getCoordinateX(bid);
+            float coordinateY = BeaconCoordinates.getInstance().getCoordinateY(bid);
             beaconDrawing.setCoordinates(coordinateX, coordinateY);
         }
     }
@@ -74,5 +62,6 @@ public class DemoView extends View {
             android.util.Log.d("DemoView", "draw beacon");
             beaconDrawing.draw(canvas);
         }
+        mUserDrawing.draw(canvas);
     }
 }

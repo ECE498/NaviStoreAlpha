@@ -5,6 +5,7 @@ import com.uwaterloo.navistore.basic_graphics.DemoView;
 
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**TODO: This can be changed to how we want to handle/manage the Bluetooth beacon data
  * Singleton BeaconData class. Receives beacon data from the CyPhy callback functions
@@ -15,7 +16,7 @@ public class BeaconData {
     private static BeaconData mData = null;
 
     private DemoView mDemoView = null;
-    private Queue<ScannedBeacon> mBeaconData;
+    private BlockingQueue<ScannedBeacon> mBeaconData;
 
     private BeaconData() {
         mBeaconData = new ArrayBlockingQueue<>(BEACON_DATA_QUEUE_CAPACITY);
@@ -28,8 +29,12 @@ public class BeaconData {
         return mData;
     }
 
+    public ScannedBeacon getData() throws InterruptedException {
+        return mBeaconData.take();
+    }
+
     public void update(ScannedBeacon data) {
-        android.util.Log.d("BeaconData", "update");
+//        android.util.Log.d("BeaconData", "update");
 
         try {
             mBeaconData.add(data);
@@ -41,10 +46,6 @@ public class BeaconData {
             mDemoView.registerBeaconDrawing(data.bid);
             android.util.Log.d("BeaconData", "registered beacon drawing");
         }
-        mDemoView.invalidate();
-
-        // TODO: do something with data so it doesn't overflow buffer
-        mBeaconData.remove();
     }
 
     public void setDemoView(DemoView newDemoView) {
