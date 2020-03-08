@@ -7,18 +7,20 @@ import android.widget.TextView;
 
 import com.uwaterloo.navistore.CyPhy.BeaconScanner;
 import com.uwaterloo.navistore.CyPhy.BeaconData;
+import com.uwaterloo.navistore.basic_graphics.DemoView;
 
 public class MainActivity extends AppCompatActivity {
+    DemoView mDemoView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+//        setContentView(R.layout.activity_main);
 
-//        TextView valueTV = new TextView(this);
-//        valueTV.setText("Bluetooth Data (default)");
-//        valueTV.setId(5);
-//        ((LinearLayout) linearLayout).addView(valueTV);
-        BeaconData.getInstance().setTextView((TextView) findViewById(R.id.main_text_box));
+        mDemoView = new DemoView(this);
+        setContentView(mDemoView);
+
+        BeaconData.getInstance().setDemoView(mDemoView);
         BeaconScanner.getInstance().init(this);
     }
 }

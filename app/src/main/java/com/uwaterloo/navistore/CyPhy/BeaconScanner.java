@@ -165,14 +165,14 @@ public class BeaconScanner {
          * Resume CyPhy Foreground = enable foreground (background will follow original setting)
          * Resume CyPhy Background = enable foreground + background
          */
-        try {
-            CyPhy.getInstance().resumeCyPhyForegroundPush();
-        } catch (IOException | PackageManager.NameNotFoundException ignored) {
-        }
-        try {
-            CyPhy.getInstance().resumeCyPhyBackgroundPush();
-        } catch (IOException | PackageManager.NameNotFoundException ignored) {
-        }
+//        try {
+//            CyPhy.getInstance().resumeCyPhyForegroundPush();
+//        } catch (IOException | PackageManager.NameNotFoundException ignored) {
+//        }
+//        try {
+//            CyPhy.getInstance().resumeCyPhyBackgroundPush();
+//        } catch (IOException | PackageManager.NameNotFoundException ignored) {
+//        }
         try {
             CyPhy.getInstance().resumeCyPhyService();
         } catch (Exception ignored) {

@@ -1,23 +1,24 @@
 package com.uwaterloo.navistore.CyPhy;
 
-import android.widget.TextView;
-
 import com.cyphymedia.sdk.model.ScannedBeacon;
+import com.uwaterloo.navistore.basic_graphics.DemoView;
+
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**TODO: This can be changed to how we want to handle/manage the Bluetooth beacon data
  * Singleton BeaconData class. Receives beacon data from the CyPhy callback functions
  */
 public class BeaconData {
+    private final int BEACON_DATA_QUEUE_CAPACITY = 10;
+
     private static BeaconData mData = null;
 
-    private TextView mTextView;
-    private ScannedBeacon[] mBeaconData;
+    private DemoView mDemoView = null;
+    private Queue<ScannedBeacon> mBeaconData;
 
     private BeaconData() {
-        mBeaconData = new ScannedBeacon[3];
-        for (int i = 0; i < mBeaconData.length; i++) {
-            mBeaconData[i] = new ScannedBeacon("0_0_0", "0", "0");
-        }
+        mBeaconData = new ArrayBlockingQueue<>(BEACON_DATA_QUEUE_CAPACITY);
     }
 
     public static BeaconData getInstance() {
@@ -30,22 +31,23 @@ public class BeaconData {
     public void update(ScannedBeacon data) {
         android.util.Log.d("BeaconData", "update");
 
-        for (int i = 0; i < mBeaconData.length; i++) {
-            if (mBeaconData[i].bid.equals(data.bid) || mBeaconData[i].bid.equals("0_0_0")) {
-                mBeaconData[i] = data;
-                break;
-            }
+        try {
+            mBeaconData.add(data);
+        } catch (IllegalStateException e) {
+            android.util.Log.e("BeaconData", "adding to queue", e);
         }
 
-        StringBuffer text = new StringBuffer();
-        for (ScannedBeacon beacon : mBeaconData) {
-            text.append(beacon.toString() + " ");
+        if (!mDemoView.containsBeacon(data.bid)) {
+            mDemoView.registerBeaconDrawing(data.bid);
+            android.util.Log.d("BeaconData", "registered beacon drawing");
         }
-        mTextView.setText(text);
+        mDemoView.invalidate();
+
+        // TODO: do something with data so it doesn't overflow buffer
+        mBeaconData.remove();
     }
 
-
-    public void setTextView(TextView newTextView) {
-        mTextView = newTextView;
+    public void setDemoView(DemoView newDemoView) {
+        mDemoView = newDemoView;
     }
 }
