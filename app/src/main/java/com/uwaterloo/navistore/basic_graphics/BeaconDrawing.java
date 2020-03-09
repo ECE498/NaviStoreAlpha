@@ -4,6 +4,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import com.uwaterloo.navistore.Coordinate;
+
 public class BeaconDrawing implements Drawing {
     private final int BEACON_COLOR = Color.YELLOW;
     private final int BEACON_RADIUS = 25;
@@ -15,8 +17,7 @@ public class BeaconDrawing implements Drawing {
     private Paint mBeaconPaint;
     private Paint mTextPaint;
     private Paint mRangePaint;
-    private float mCoordinateX;
-    private float mCoordinateY;
+    private Coordinate mPosition;
     private int mRangeRadius;
 
     public BeaconDrawing(String bid) {
@@ -35,8 +36,7 @@ public class BeaconDrawing implements Drawing {
         mRangePaint.setStrokeWidth(4.0f);
         mRangePaint.setColor(Color.RED);
 
-        mCoordinateX = 0.0f;
-        mCoordinateY = 0.0f;
+        mPosition = new Coordinate();
         mRangeRadius = 25;
     }
 
@@ -44,13 +44,7 @@ public class BeaconDrawing implements Drawing {
         return mBid;
     }
 
-    public float getCoordinateX() {
-        return mCoordinateX;
-    }
-
-    public float getCoordinateY() {
-        return mCoordinateY;
-    }
+    public Coordinate getPosition() { return mPosition; }
 
     public void setRangeRadius(int radius) {
         mRangeRadius = radius;
@@ -60,15 +54,15 @@ public class BeaconDrawing implements Drawing {
         mRangePaint.setColor(color);
     }
 
-    public void setCoordinates(float coordinateX, float coordinateY) {
-        mCoordinateX = coordinateX;
-        mCoordinateY = coordinateY;
+    public void setPosition(float coordinateX, float coordinateY) {
+        mPosition.mX = coordinateX;
+        mPosition.mY = coordinateY;
     }
 
     @Override
     public void draw(Canvas canvas) {
-        canvas.drawCircle(mCoordinateX, mCoordinateY, BEACON_RADIUS, mBeaconPaint);
-        canvas.drawText(mBid.substring(mBid.length() - 2), mCoordinateX, mCoordinateY, mTextPaint);
-        canvas.drawCircle(mCoordinateX, mCoordinateY, mRangeRadius, mRangePaint);
+        canvas.drawCircle(mPosition.mX, mPosition.mY, BEACON_RADIUS, mBeaconPaint);
+        canvas.drawText(mBid.substring(mBid.length() - 2), mPosition.mX, mPosition.mY, mTextPaint);
+        canvas.drawCircle(mPosition.mX, mPosition.mY, mRangeRadius, mRangePaint);
     }
 }

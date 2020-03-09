@@ -8,6 +8,7 @@ import android.view.View;
 
 import com.cyphymedia.sdk.model.ScannedBeacon;
 import com.uwaterloo.navistore.BeaconCoordinates;
+import com.uwaterloo.navistore.Coordinate;
 import com.uwaterloo.navistore.UserPosition;
 
 import java.util.ArrayList;
@@ -38,9 +39,8 @@ public class DemoView extends View {
         String bid = beaconDrawing.getBid();
         if (BeaconCoordinates.getInstance().isBeaconValid(bid)) {
             mBeaconDrawings.add(beaconDrawing);
-            float coordinateX = BeaconCoordinates.getInstance().getCoordinateX(bid);
-            float coordinateY = BeaconCoordinates.getInstance().getCoordinateY(bid);
-            beaconDrawing.setCoordinates(coordinateX, coordinateY);
+            Coordinate beaconPosition = BeaconCoordinates.getInstance().getCoordinate(bid);
+            beaconDrawing.setPosition(beaconPosition.mX, beaconPosition.mY);
         }
     }
 

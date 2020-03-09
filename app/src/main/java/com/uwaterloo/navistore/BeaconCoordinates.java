@@ -2,33 +2,43 @@ package com.uwaterloo.navistore;
 
 import java.util.HashMap;
 
+// Singleton containing beacon coordinate data
 public class BeaconCoordinates {
+    // Offset of each beacon with respect to [0, 0] coordinate
+    public static final float INITIAL_OFFSET = 25.0f;
+    // Halfway pixel length between adjacent beacons
+    public static final float HALFWAY_LENGTH = 250.0f;
+
     private static BeaconCoordinates mBeaconCoordinates = null;
 
-    private HashMap<String, Float> mBeaconXCoordinateMap;
-    private HashMap<String, Float> mBeaconYCoordinateMap;
+    private HashMap<String, Coordinate> mBeaconCoordinateMap;
 
     private BeaconCoordinates() {
-        mBeaconXCoordinateMap = new HashMap<>();
-        mBeaconYCoordinateMap = new HashMap<>();
+        mBeaconCoordinateMap = new HashMap<>();
 
-        mBeaconXCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32741", 25.0f);
-        mBeaconYCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32741", 25.0f);
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32741", new Coordinate(
+                INITIAL_OFFSET + (0 * (2 * HALFWAY_LENGTH)),
+                INITIAL_OFFSET + (0 * (2 * HALFWAY_LENGTH))));
 
-        mBeaconXCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32742", 525.0f);
-        mBeaconYCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32742", 25.0f);
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32742", new Coordinate(
+                INITIAL_OFFSET + (1 * (2 * HALFWAY_LENGTH)),
+                INITIAL_OFFSET + (0 * (2 * HALFWAY_LENGTH))));
 
-        mBeaconXCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32745", 25.0f);
-        mBeaconYCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32745", 525.0f);
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32745", new Coordinate(
+                INITIAL_OFFSET + (0 * (2 * HALFWAY_LENGTH)),
+                INITIAL_OFFSET + (1 * (2 * HALFWAY_LENGTH))));
 
-        mBeaconXCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32747", 525.0f);
-        mBeaconYCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32747", 525.0f);
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32747", new Coordinate(
+                INITIAL_OFFSET + (1 * (2 * HALFWAY_LENGTH)),
+                INITIAL_OFFSET + (1 * (2 * HALFWAY_LENGTH))));
 
-        mBeaconXCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32749", 25.0f);
-        mBeaconYCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32749", 1025.0f);
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32749", new Coordinate(
+                INITIAL_OFFSET + (0 * (2 * HALFWAY_LENGTH)),
+                INITIAL_OFFSET + (2 * (2 * HALFWAY_LENGTH))));
 
-        mBeaconXCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32750", 525.0f);
-        mBeaconYCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32750", 1025.0f);
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32750", new Coordinate(
+                INITIAL_OFFSET + (1 * (2 * HALFWAY_LENGTH)),
+                INITIAL_OFFSET + (2 * (2 * HALFWAY_LENGTH))));
     }
 
     public static BeaconCoordinates getInstance() {
@@ -38,25 +48,19 @@ public class BeaconCoordinates {
         return mBeaconCoordinates;
     }
 
+    // Return null if invalid
+    public Coordinate getCoordinate(String bid) {
+        Coordinate coordinate = null;
+        if (mBeaconCoordinateMap.containsKey(bid)) {
+            coordinate = mBeaconCoordinateMap.get(bid);
+            // FIXME: better alternatives?
+            // Copy to ensure original is cannot be modified
+            coordinate = new Coordinate(coordinate.mX, coordinate.mY);
+        }
+        return coordinate;
+    }
+
     public boolean isBeaconValid(String bid) {
-        return (mBeaconXCoordinateMap.containsKey(bid) && mBeaconYCoordinateMap.containsKey(bid));
-    }
-
-    // Return negative value if invalid
-    public float getCoordinateX(String bid) {
-        float coordinateX = -1.0f;
-        if (mBeaconXCoordinateMap.containsKey(bid) && mBeaconYCoordinateMap.containsKey(bid)) {
-            coordinateX = mBeaconXCoordinateMap.get(bid);
-        }
-        return coordinateX;
-    }
-
-    // Return negative value if invalid
-    public float getCoordinateY(String bid) {
-        float coordinateY = -1.0f;
-        if (mBeaconXCoordinateMap.containsKey(bid) && mBeaconYCoordinateMap.containsKey(bid)) {
-            coordinateY = mBeaconYCoordinateMap.get(bid);
-        }
-        return coordinateY;
+        return mBeaconCoordinateMap.containsKey(bid);
     }
 }

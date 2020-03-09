@@ -1,14 +1,11 @@
 package com.uwaterloo.navistore;
 
-import android.renderscript.RenderScript;
-
 import com.cyphymedia.sdk.model.ScannedBeacon;
 import com.uwaterloo.navistore.CyPhy.BeaconData;
 import com.uwaterloo.navistore.basic_graphics.DemoView;
 import com.uwaterloo.navistore.basic_graphics.UserDrawing;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.PriorityQueue;
 
 public class UserPosition implements Runnable {
@@ -18,15 +15,11 @@ public class UserPosition implements Runnable {
     private DemoView mDemoView;
     private UserDrawing mUserDrawing;
 
-//    private HashMap<String, ScannedBeacon> mData;
     private PriorityQueue<ScannedBeacon> mBeaconData;
     private ScannedBeacon[] mClosestBeacons;
-    private float[] mBeaconIntersectX;
-    private float[] mBeaconIntersectY;
+    private Coordinate[] mBeaconIntersect;
 
-    private int mNumClosestBeacons = 0;
-    private float mCoordinateX = 0.0f;
-    private float mCoordinateY = 0.0f;
+    private Coordinate mPosition;
 
     public UserPosition(DemoView demoView, UserDrawing userDrawing) {
         mDemoView = demoView;
@@ -48,71 +41,68 @@ public class UserPosition implements Runnable {
             }
         });
         mClosestBeacons = new ScannedBeacon[3];
-        mBeaconIntersectX = new float[3];
-        mBeaconIntersectY = new float[3];
+        mBeaconIntersect = new Coordinate[3];
+        for (int index = 0; index < mBeaconIntersect.length; index++) {
+            mBeaconIntersect[index] = new Coordinate(0.0f, 0.0f);
+        }
+        mPosition = new Coordinate(0.0f, 0.0f);
     }
 
     private void updateUserPosition() {
-        getClosestBeacons();
+        int numClosestBeacons = getClosestBeacons(mClosestBeacons);
+        triangulate(mClosestBeacons, numClosestBeacons, mPosition);
+//        quantizeCoordinates(mPosition);
+        repopulateQueue(mClosestBeacons, numClosestBeacons);
+
         mDemoView.updateFocus(mClosestBeacons[0], mClosestBeacons[1], mClosestBeacons[2]);
-        calculatePosition();
-        repopulateQueue();
-        mUserDrawing.setCoordinates(mCoordinateX, mCoordinateY);
+        mUserDrawing.setCoordinates(mPosition.mX, mPosition.mY);
         mDemoView.postInvalidate();
     }
 
-    private void calculatePosition() {
-        triangulate();
-//        quantizeCoordinates();
-    }
-
-    private void triangulate() {
+    // @sideeffect Update 'position' with newly-triangulated user position
+    private void triangulate(ScannedBeacon[] closestBeacons, int numClosestBeacons, Coordinate position) {
         int index;
-        for (index = 0; index < mNumClosestBeacons; index++) {
-            mBeaconIntersectX[index] = BeaconCoordinates.getInstance().getCoordinateX(mClosestBeacons[index].bid);
-            mBeaconIntersectY[index] = BeaconCoordinates.getInstance().getCoordinateY(mClosestBeacons[index].bid);
+        for (index = 0; index < numClosestBeacons; index++) {
+            mBeaconIntersect[index] = BeaconCoordinates.getInstance().getCoordinate(closestBeacons[index].bid);
         }
-        for (; index < mBeaconIntersectX.length; index++) {
-            mBeaconIntersectX[index] = -1.0f;
-            mBeaconIntersectY[index] = -1.0f;
+        for (; index < mBeaconIntersect.length; index++) {
+            mBeaconIntersect[index].mX = -1.0f;
+            mBeaconIntersect[index].mY = -1.0f;
         }
 
         // Triangulate between first two beacons
-        if (mNumClosestBeacons >= 2) {
-            float[] firstIntersectCoordinates = getIntersection(mBeaconIntersectX[0], mBeaconIntersectY[0], Float.parseFloat(mClosestBeacons[0].distance) * PIXEL_PER_DISTANCE,
-                    mBeaconIntersectX[1], mBeaconIntersectY[1], Float.parseFloat(mClosestBeacons[1].distance) * PIXEL_PER_DISTANCE,
-                    mBeaconIntersectX[2], mBeaconIntersectY[2]);
+        if (numClosestBeacons >= 2) {
+            Coordinate firstIntersect = getIntersection(mBeaconIntersect[0].mX, mBeaconIntersect[0].mY, Float.parseFloat(closestBeacons[0].distance) * PIXEL_PER_DISTANCE,
+                    mBeaconIntersect[1].mX, mBeaconIntersect[1].mY, Float.parseFloat(closestBeacons[1].distance) * PIXEL_PER_DISTANCE,
+                    mBeaconIntersect[2].mX, mBeaconIntersect[2].mY);
 
             // Triangulate two beacons with the third
-            if (mNumClosestBeacons >= 3) {
-                float[] secondIntersectCoordinates = getIntersection(mBeaconIntersectX[1], mBeaconIntersectY[1], Float.parseFloat(mClosestBeacons[1].distance) * PIXEL_PER_DISTANCE,
-                        mBeaconIntersectX[2], mBeaconIntersectY[2], Float.parseFloat(mClosestBeacons[2].distance) * PIXEL_PER_DISTANCE,
-                        mBeaconIntersectX[0], mBeaconIntersectY[0]);
+            if (numClosestBeacons >= 3) {
+                Coordinate secondIntersect = getIntersection(mBeaconIntersect[1].mX, mBeaconIntersect[1].mY, Float.parseFloat(closestBeacons[1].distance) * PIXEL_PER_DISTANCE,
+                        mBeaconIntersect[2].mX, mBeaconIntersect[2].mY, Float.parseFloat(closestBeacons[2].distance) * PIXEL_PER_DISTANCE,
+                        mBeaconIntersect[0].mX, mBeaconIntersect[0].mY);
 
-                float[] thirdIntersectCoordinates = getIntersection(mBeaconIntersectX[0], mBeaconIntersectY[0], Float.parseFloat(mClosestBeacons[0].distance) * PIXEL_PER_DISTANCE,
-                        mBeaconIntersectX[2], mBeaconIntersectY[2], Float.parseFloat(mClosestBeacons[2].distance) * PIXEL_PER_DISTANCE,
-                        mBeaconIntersectX[1], mBeaconIntersectY[1]);
+                Coordinate thirdIntersect = getIntersection(mBeaconIntersect[0].mX, mBeaconIntersect[0].mY, Float.parseFloat(closestBeacons[0].distance) * PIXEL_PER_DISTANCE,
+                        mBeaconIntersect[2].mX, mBeaconIntersect[2].mY, Float.parseFloat(closestBeacons[2].distance) * PIXEL_PER_DISTANCE,
+                        mBeaconIntersect[1].mX, mBeaconIntersect[1].mY);
 
-                mBeaconIntersectX[1] = secondIntersectCoordinates[0];
-                mBeaconIntersectY[1] = secondIntersectCoordinates[1];
-                mBeaconIntersectX[2] = thirdIntersectCoordinates[0];
-                mBeaconIntersectY[2] = thirdIntersectCoordinates[1];
+                mBeaconIntersect[1] = secondIntersect;
+                mBeaconIntersect[2] = thirdIntersect;
             }
 
-            mBeaconIntersectX[0] = firstIntersectCoordinates[0];
-            mBeaconIntersectY[0] = firstIntersectCoordinates[1];
+            mBeaconIntersect[0] = firstIntersect;
         }
-        centralize();
+
+        centralize(mBeaconIntersect, numClosestBeacons, position);
     }
 
     // Implementing based on
     // http://paulbourke.net/geometry/circlesphere/ - Intersection of two circles
-    // @return float[] - [x3, y3];
-    private float[] getIntersection(float x0, float y0, float r0, float x1, float y1, float r1, float finalBeaconCoordX, float finalBeaconCoordY) {
-        // p3 = [x3, y3]
-        float[] p3 = new float[2];
+    private Coordinate getIntersection(float x0, float y0, float r0, float x1, float y1, float r1, float finalBeaconCoordX, float finalBeaconCoordY) {
+        Coordinate p3 = new Coordinate();
         double a, d, h;
         double x2, y2;
+        // Possible coordinates for p3 (2 possibilities for intersecting circles)
         double x3_1, x3_2, y3_1, y3_2;
 
         d = getDistance(x0, y0, x1, y1);
@@ -134,17 +124,17 @@ public class UserPosition implements Runnable {
 
             x2 = (edgeX0 + edgeX1) / 2.0;
             y2 = (edgeY0 + edgeY1) / 2.0;
-            p3[0] = (float)x2;
-            p3[1] = (float)y2;
+            p3.mX = (float)x2;
+            p3.mY = (float)y2;
         // One circle is enclosed within the other
         } else if (d < Math.abs(r0 - r1)) {
             // Set p3 to be the center of smaller circle (i.e. a beacon position)
             if (r0 > r1) {
-                p3[0] = x1;
-                p3[1] = y1;
+                p3.mX = x1;
+                p3.mY = y1;
             } else {
-                p3[0] = x0;
-                p3[1] = y0;
+                p3.mX = x0;
+                p3.mY = y0;
             }
         // Typical case of two intersecting values
         } else {
@@ -156,11 +146,11 @@ public class UserPosition implements Runnable {
 
             // Determine which p3 is closest to the third beacon
             if (getDistance(x3_1, y3_1, finalBeaconCoordX, finalBeaconCoordY) < getDistance(x3_2, y3_2, finalBeaconCoordX, finalBeaconCoordY)) {
-                p3[0] = (float)x3_1;
-                p3[1] = (float)y3_1;
+                p3.mX = (float)x3_1;
+                p3.mY = (float)y3_1;
             } else {
-                p3[0] = (float)x3_2;
-                p3[1] = (float)y3_2;
+                p3.mX = (float)x3_2;
+                p3.mY = (float)y3_2;
             }
         }
 
@@ -173,50 +163,51 @@ public class UserPosition implements Runnable {
         return Math.sqrt((diffX * diffX) + (diffY * diffY));
     }
 
-    private void centralize() {
-        float centerX = 0.0f;
-        float centerY = 0.0f;
-        for (int index = 0; index < mNumClosestBeacons; index++) {
-            centerX += mBeaconIntersectX[index];
-            centerY += mBeaconIntersectY[index];
+    // @sideeffect Store center coordinate in 'center'
+    private void centralize(Coordinate[] points, int numPoints, Coordinate center) {
+        center.mX = 0.0f;
+        center.mY = 0.0f;
+        for (int index = 0; index < numPoints; index++) {
+            center.mX += points[index].mX;
+            center.mY += points[index].mY;
         }
 
-        centerX /= mNumClosestBeacons;
-        centerY /= mNumClosestBeacons;
-
-        mCoordinateX = centerX;
-        mCoordinateY = centerY;
+        center.mX /= numPoints;
+        center.mY /= numPoints;
     }
 
-    private void quantizeCoordinates() {
-        mCoordinateX = Math.round((mCoordinateX - 25) / 250.0) * 250 + 25;
-        mCoordinateY = Math.round((mCoordinateY - 25) / 250.0) * 250 + 25;
+    // @sideeffect Update 'point' with quantized coordinates
+    private void quantizeCoordinates(Coordinate point) {
+        point.mX = Math.round((point.mX - BeaconCoordinates.INITIAL_OFFSET) / BeaconCoordinates.HALFWAY_LENGTH) * (int)BeaconCoordinates.HALFWAY_LENGTH + (int)BeaconCoordinates.INITIAL_OFFSET;
+        point.mY = Math.round((point.mY - BeaconCoordinates.INITIAL_OFFSET) / BeaconCoordinates.HALFWAY_LENGTH) * (int)(BeaconCoordinates.HALFWAY_LENGTH) + (int)BeaconCoordinates.INITIAL_OFFSET;
     }
 
     // Get closest beacons to perform positioning algorithm on; may be equal to or less then array length
-    private void getClosestBeacons() {
-        mNumClosestBeacons = 0;
+    private int getClosestBeacons(ScannedBeacon[] closestBeacons) {
+        int numClosestBeacons = 0;
 
-        for (int index = 0; index < mClosestBeacons.length; index++) {
-            mClosestBeacons[index] = null;
+        for (int index = 0; index < closestBeacons.length; index++) {
+            closestBeacons[index] = null;
         }
 
-        for (int index = 0; index < mClosestBeacons.length; index++) {
-            mClosestBeacons[index] = mBeaconData.poll();
+        for (int index = 0; index < closestBeacons.length; index++) {
+            closestBeacons[index] = mBeaconData.poll();
 
-            if (null == mClosestBeacons[index]) {
+            if (null == closestBeacons[index]) {
                 break;
             }
 
-            mNumClosestBeacons++;
-            android.util.Log.d("UserPosition", "closest beacon [" + index + "]: " + mClosestBeacons[index].bid.substring(mClosestBeacons[index].bid.length() - 2) + " | " + mClosestBeacons[index].distance);
+            numClosestBeacons++;
+            android.util.Log.d("UserPosition", "closest beacon [" + index + "]: " + closestBeacons[index].bid.substring(closestBeacons[index].bid.length() - 2) + " | " + closestBeacons[index].distance);
         }
+
+        return numClosestBeacons;
     }
 
     // Repopulate priority queue with the closest beacons
-    private void repopulateQueue() {
-        for (int index = 0; index < mNumClosestBeacons; index++) {
-            mBeaconData.add(mClosestBeacons[index]);
+    private void repopulateQueue(ScannedBeacon[] closestBeacons, int numClosestBeacons) {
+        for (int index = 0; index < numClosestBeacons; index++) {
+            mBeaconData.add(closestBeacons[index]);
         }
     }
 
