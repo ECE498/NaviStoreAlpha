@@ -9,6 +9,7 @@ import android.view.View;
 import com.cyphymedia.sdk.model.ScannedBeacon;
 import com.uwaterloo.navistore.BeaconCoordinates;
 import com.uwaterloo.navistore.Coordinate;
+import com.uwaterloo.navistore.ProcessedBeacon;
 import com.uwaterloo.navistore.UserPosition;
 
 import java.util.ArrayList;
@@ -58,7 +59,7 @@ public class DemoView extends View {
         this.postInvalidate();
     }
 
-    public void updateFocus(ScannedBeacon beacon1, ScannedBeacon beacon2, ScannedBeacon beacon3) {
+    public void updateFocus(ProcessedBeacon beacon1, ProcessedBeacon beacon2, ProcessedBeacon beacon3) {
         for (BeaconDrawing beaconDrawing : mBeaconDrawings) {
             if (((null != beacon1) && beaconDrawing.getBid().equals(beacon1.bid)) ||
                     ((null != beacon2) && beaconDrawing.getBid().equals(beacon2.bid)) ||

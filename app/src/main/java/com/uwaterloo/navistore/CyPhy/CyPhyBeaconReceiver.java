@@ -28,9 +28,9 @@ public class CyPhyBeaconReceiver extends CyPhyServiceReceiver {
 
     @Override
     public void cyPhyNavigationBeacon(Collection<NavBeacon> collection) {
-        android.util.Log.d("CyPhyBeaconReceiver", "Service :: cyPhyNavigationBeacon.size = " + collection.size());
+//        android.util.Log.d("CyPhyBeaconReceiver", "Service :: cyPhyNavigationBeacon.size = " + collection.size());
         for(NavBeacon nb : collection){
-            android.util.Log.d("CyPhyBeaconReceiver", "Service :: nb = " + new Gson().toJson(nb));
+//            android.util.Log.d("CyPhyBeaconReceiver", "Service :: nb = " + new Gson().toJson(nb));
         }
     }
 

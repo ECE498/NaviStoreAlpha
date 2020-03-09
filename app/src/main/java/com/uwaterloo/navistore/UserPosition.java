@@ -4,6 +4,7 @@ import com.cyphymedia.sdk.model.ScannedBeacon;
 import com.uwaterloo.navistore.CyPhy.BeaconData;
 import com.uwaterloo.navistore.basic_graphics.DemoView;
 import com.uwaterloo.navistore.basic_graphics.UserDrawing;
+import com.uwaterloo.navistore.test.DataCollector;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -11,13 +12,19 @@ import java.util.PriorityQueue;
 public class UserPosition implements Runnable {
 
     public static final float PIXEL_PER_DISTANCE = 500.0f / 3.0f;
+    // Calibrated RSSI value from a distance of 1 m (300 points of data collected)
+    public static final float CALIBRATED_RSSI_DB = -64.2f;
+    // RSSI factor 'n' in d = 10^((rssi_calibrated - rssi) / (10 * n))
+    public static final float RSSI_FACTOR = 2.8f;
 
     private DemoView mDemoView;
     private UserDrawing mUserDrawing;
 
-    private PriorityQueue<ScannedBeacon> mBeaconData;
-    private ScannedBeacon[] mClosestBeacons;
+    private PriorityQueue<ProcessedBeacon> mBeaconData;
+    private ProcessedBeacon[] mClosestBeacons;
     private Coordinate[] mBeaconIntersect;
+    private DataCollector mRssiData;
+    private DataCollector mDistanceData;
 
     private Coordinate mPosition;
 
@@ -25,27 +32,65 @@ public class UserPosition implements Runnable {
         mDemoView = demoView;
         mUserDrawing = userDrawing;
         // Compare distances such that the head of the queue is the closest beacon
-        mBeaconData = new PriorityQueue<>(20, new Comparator<ScannedBeacon>() {
+        mBeaconData = new PriorityQueue<>(20, new Comparator<ProcessedBeacon>() {
             @Override
-            public int compare(ScannedBeacon scannedBeacon, ScannedBeacon t1) {
-//                return Math.round(Float.parseFloat(scannedBeacon.distance) - Float.parseFloat(t1.distance));
-                float sb_distance = Float.parseFloat(scannedBeacon.distance);
-                float t1_distance = Float.parseFloat(t1.distance);
-                if (sb_distance > t1_distance) {
+            public int compare(ProcessedBeacon t0, ProcessedBeacon t1) {
+                if (t0.calculatedDistance > t1.calculatedDistance) {
                     return 1;
-                } else if (sb_distance == t1_distance) {
+                } else if (t0.calculatedDistance == t1.calculatedDistance) {
                     return 0;
                 } else {
                     return -1;
                 }
             }
         });
-        mClosestBeacons = new ScannedBeacon[3];
+        mClosestBeacons = new ProcessedBeacon[3];
         mBeaconIntersect = new Coordinate[3];
         for (int index = 0; index < mBeaconIntersect.length; index++) {
             mBeaconIntersect[index] = new Coordinate(0.0f, 0.0f);
         }
+        mRssiData = new DataCollector();
+        mDistanceData = new DataCollector();
         mPosition = new Coordinate(0.0f, 0.0f);
+    }
+
+    private void processBeaconData(ScannedBeacon beacon) {
+        ProcessedBeacon processedBeacon = extractAndUpdateFromBeaconQueue(beacon);
+        processedBeacon.calculatedDistance = calculateDistanceFromRssi(processedBeacon.rssi);
+        processedBeacon.calculatedDistance = kalmanFilter(processedBeacon.calculatedDistance);
+        mRssiData.collectData(processedBeacon.rssi);
+        mDistanceData.collectData(processedBeacon.calculatedDistance);
+        mBeaconData.add(processedBeacon);
+    }
+
+    private ProcessedBeacon extractAndUpdateFromBeaconQueue(ScannedBeacon beacon) {
+        ProcessedBeacon processedBeacon = null;
+        for (ProcessedBeacon existingBeacon : mBeaconData) {
+            if (existingBeacon.bid.equals(beacon.bid)) {
+                processedBeacon = existingBeacon;
+                break;
+            }
+        }
+        if (null != processedBeacon) {
+            processedBeacon.rssi = Float.parseFloat(beacon.rssi);
+            processedBeacon.battery = Float.parseFloat(beacon.battery);
+            if (!mBeaconData.remove(processedBeacon)) {
+                android.util.Log.d("UserPosition", "Existing ProcessedBeacon was not removed");
+            }
+        } else {
+            processedBeacon = new ProcessedBeacon(beacon.bid, beacon.rssi, beacon.battery);
+        }
+        return processedBeacon;
+    }
+
+    private float calculateDistanceFromRssi(float rssi) {
+        return (float)Math.pow(10, (CALIBRATED_RSSI_DB - rssi) / (10 * RSSI_FACTOR));
+    }
+
+    // TODO: implement
+    private float kalmanFilter(float inputDistance) {
+        float outputDistance = inputDistance;
+        return outputDistance;
     }
 
     private void updateUserPosition() {
@@ -60,7 +105,7 @@ public class UserPosition implements Runnable {
     }
 
     // @sideeffect Update 'position' with newly-triangulated user position
-    private void triangulate(ScannedBeacon[] closestBeacons, int numClosestBeacons, Coordinate position) {
+    private void triangulate(ProcessedBeacon[] closestBeacons, int numClosestBeacons, Coordinate position) {
         int index;
         for (index = 0; index < numClosestBeacons; index++) {
             mBeaconIntersect[index] = BeaconCoordinates.getInstance().getCoordinate(closestBeacons[index].bid);
@@ -72,18 +117,18 @@ public class UserPosition implements Runnable {
 
         // Triangulate between first two beacons
         if (numClosestBeacons >= 2) {
-            Coordinate firstIntersect = getIntersection(mBeaconIntersect[0].mX, mBeaconIntersect[0].mY, Float.parseFloat(closestBeacons[0].distance) * PIXEL_PER_DISTANCE,
-                    mBeaconIntersect[1].mX, mBeaconIntersect[1].mY, Float.parseFloat(closestBeacons[1].distance) * PIXEL_PER_DISTANCE,
+            Coordinate firstIntersect = getIntersection(mBeaconIntersect[0].mX, mBeaconIntersect[0].mY, closestBeacons[0].calculatedDistance * PIXEL_PER_DISTANCE,
+                    mBeaconIntersect[1].mX, mBeaconIntersect[1].mY, closestBeacons[1].calculatedDistance * PIXEL_PER_DISTANCE,
                     mBeaconIntersect[2].mX, mBeaconIntersect[2].mY);
 
             // Triangulate two beacons with the third
             if (numClosestBeacons >= 3) {
-                Coordinate secondIntersect = getIntersection(mBeaconIntersect[1].mX, mBeaconIntersect[1].mY, Float.parseFloat(closestBeacons[1].distance) * PIXEL_PER_DISTANCE,
-                        mBeaconIntersect[2].mX, mBeaconIntersect[2].mY, Float.parseFloat(closestBeacons[2].distance) * PIXEL_PER_DISTANCE,
+                Coordinate secondIntersect = getIntersection(mBeaconIntersect[1].mX, mBeaconIntersect[1].mY, closestBeacons[1].calculatedDistance * PIXEL_PER_DISTANCE,
+                        mBeaconIntersect[2].mX, mBeaconIntersect[2].mY, closestBeacons[2].calculatedDistance * PIXEL_PER_DISTANCE,
                         mBeaconIntersect[0].mX, mBeaconIntersect[0].mY);
 
-                Coordinate thirdIntersect = getIntersection(mBeaconIntersect[0].mX, mBeaconIntersect[0].mY, Float.parseFloat(closestBeacons[0].distance) * PIXEL_PER_DISTANCE,
-                        mBeaconIntersect[2].mX, mBeaconIntersect[2].mY, Float.parseFloat(closestBeacons[2].distance) * PIXEL_PER_DISTANCE,
+                Coordinate thirdIntersect = getIntersection(mBeaconIntersect[0].mX, mBeaconIntersect[0].mY, closestBeacons[0].calculatedDistance * PIXEL_PER_DISTANCE,
+                        mBeaconIntersect[2].mX, mBeaconIntersect[2].mY, closestBeacons[2].calculatedDistance * PIXEL_PER_DISTANCE,
                         mBeaconIntersect[1].mX, mBeaconIntersect[1].mY);
 
                 mBeaconIntersect[1] = secondIntersect;
@@ -183,7 +228,7 @@ public class UserPosition implements Runnable {
     }
 
     // Get closest beacons to perform positioning algorithm on; may be equal to or less then array length
-    private int getClosestBeacons(ScannedBeacon[] closestBeacons) {
+    private int getClosestBeacons(ProcessedBeacon[] closestBeacons) {
         int numClosestBeacons = 0;
 
         for (int index = 0; index < closestBeacons.length; index++) {
@@ -198,14 +243,14 @@ public class UserPosition implements Runnable {
             }
 
             numClosestBeacons++;
-            android.util.Log.d("UserPosition", "closest beacon [" + index + "]: " + closestBeacons[index].bid.substring(closestBeacons[index].bid.length() - 2) + " | " + closestBeacons[index].distance);
+            android.util.Log.d("UserPosition", "closest beacon [" + index + "]: " + closestBeacons[index].bid.substring(closestBeacons[index].bid.length() - 2) + " | " + closestBeacons[index].calculatedDistance);
         }
 
         return numClosestBeacons;
     }
 
     // Repopulate priority queue with the closest beacons
-    private void repopulateQueue(ScannedBeacon[] closestBeacons, int numClosestBeacons) {
+    private void repopulateQueue(ProcessedBeacon[] closestBeacons, int numClosestBeacons) {
         for (int index = 0; index < numClosestBeacons; index++) {
             mBeaconData.add(closestBeacons[index]);
         }
@@ -221,10 +266,7 @@ public class UserPosition implements Runnable {
                 android.util.Log.e("UserPosition", "getting beacon data", e);
             }
 
-            // Remove any previous instance of the same BID, if it exists
-            mBeaconData.remove(beaconData);
-            mBeaconData.add(beaconData);
-
+            processBeaconData(beaconData);
             updateUserPosition();
         }
     }
