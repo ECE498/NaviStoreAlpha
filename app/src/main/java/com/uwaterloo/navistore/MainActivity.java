@@ -24,11 +24,10 @@ public class MainActivity extends AppCompatActivity {
         mDemoView = new DemoView(this, mUserDrawing);
         setContentView(mDemoView);
         mUserPosition = new UserPosition(mDemoView, mUserDrawing);
+        BeaconData.getInstance().setDemoView(mDemoView);
 
         Thread userPositionThread = new Thread(mUserPosition);
         userPositionThread.start();
-
-        BeaconData.getInstance().setDemoView(mDemoView);
         BeaconScanner.getInstance().init(this);
     }
 }

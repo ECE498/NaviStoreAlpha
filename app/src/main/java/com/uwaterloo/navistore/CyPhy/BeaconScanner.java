@@ -76,19 +76,19 @@ public class BeaconScanner {
     private CyPhyConfig initCyPhyConfig() {
         CyPhyConfig mConfig = new CyPhyConfig();
         mConfig.mBeaconScanningConfig.setBackgroundBetweenScanInterval(0);
-        mConfig.mBeaconScanningConfig.setBackgroundScanInterval(10 * 1000);
+        mConfig.mBeaconScanningConfig.setBackgroundScanInterval(2 * 1000);
         mConfig.mBeaconScanningConfig.setForegroundBetweenScanInterval(0);
-        mConfig.mBeaconScanningConfig.setForegroundScanInterval(3 * 1000);
-        mConfig.mBeaconScanningConfig.setBeaconTimeoutInterval(10 * 1000);
-        mConfig.mBeaconScanningConfig.setOffscreenScanInterval(4 * 1000);
+        mConfig.mBeaconScanningConfig.setForegroundScanInterval(2 * 1000);
+        mConfig.mBeaconScanningConfig.setBeaconTimeoutInterval(2 * 1000);
+        mConfig.mBeaconScanningConfig.setOffscreenScanInterval(2 * 1000);
         mConfig.mBeaconScanningConfig.setServiceRestingInterval(60 * 1000);
-        mConfig.mBeaconScanningConfig.setServiceScanInterval(10 * 1000);
+        mConfig.mBeaconScanningConfig.setServiceScanInterval(2 * 1000);
         mConfig.mBeaconScanningConfig.setBleRepairCount(12);
         mConfig.mBeaconScanningConfig.setScanningMode(new CyPhyConfig.ScanningMode(CyPhyConfig.BeaconScanningConfig.MODE_ALL));
         mConfig.mDragSensingConfig.setDragDelay(1000);
         mConfig.mNetworkConfig.setFailureLimit(-1);
         mConfig.mNetworkConfig.setFailureRetryTimeout(3 * 60 * 60 * 1000);
-        mConfig.mNetworkConfig.setNetworkCycle(5000);
+        mConfig.mNetworkConfig.setNetworkCycle(2000);
         mConfig.mNetworkConfig.enableCustomDomain(true);
         mConfig.mNetworkConfig.setApiDomain("https://apia05.cyphy.com/" /*Your API Domain*/);
         mConfig.mNetworkConfig.setCloudDomain("https://clouda05.cyphy.com/"  /*Your Cloud Domain*/);

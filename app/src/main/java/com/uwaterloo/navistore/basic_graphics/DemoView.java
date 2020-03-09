@@ -58,10 +58,9 @@ public class DemoView extends View {
         paint.setColor(Color.WHITE);
         canvas.drawPaint(paint);
 
+        mUserDrawing.draw(canvas);
         for (BeaconDrawing beaconDrawing : mBeaconDrawings) {
-            android.util.Log.d("DemoView", "draw beacon");
             beaconDrawing.draw(canvas);
         }
-        mUserDrawing.draw(canvas);
     }
 }
