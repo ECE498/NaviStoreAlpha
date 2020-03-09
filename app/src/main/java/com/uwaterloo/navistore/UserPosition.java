@@ -17,20 +17,31 @@ public class UserPosition implements Runnable {
     // RSSI factor 'n' in d = 10^((rssi_calibrated - rssi) / (10 * n))
     public static final float RSSI_FACTOR = 2.8f;
 
+    // Drawing-related members
     private DemoView mDemoView;
     private UserDrawing mUserDrawing;
 
+    // Beacon data processing members
     private PriorityQueue<ProcessedBeacon> mBeaconData;
+    // Kalman filter-related members
+    private float mOutputDistance;
+    private float mKalmanFilterP;
+
+    // Position triangulation-related members
     private ProcessedBeacon[] mClosestBeacons;
     private Coordinate[] mBeaconIntersect;
+
+    // Data collection members
     private DataCollector mRssiData;
     private DataCollector mDistanceData;
 
+    // Current user position
     private Coordinate mPosition;
 
     public UserPosition(DemoView demoView, UserDrawing userDrawing) {
         mDemoView = demoView;
         mUserDrawing = userDrawing;
+
         // Compare distances such that the head of the queue is the closest beacon
         mBeaconData = new PriorityQueue<>(20, new Comparator<ProcessedBeacon>() {
             @Override
@@ -44,13 +55,18 @@ public class UserPosition implements Runnable {
                 }
             }
         });
+
+        mOutputDistance = 1.0f;
+
         mClosestBeacons = new ProcessedBeacon[3];
         mBeaconIntersect = new Coordinate[3];
         for (int index = 0; index < mBeaconIntersect.length; index++) {
             mBeaconIntersect[index] = new Coordinate(0.0f, 0.0f);
         }
+
         mRssiData = new DataCollector();
         mDistanceData = new DataCollector();
+
         mPosition = new Coordinate(0.0f, 0.0f);
     }
 
@@ -87,10 +103,23 @@ public class UserPosition implements Runnable {
         return (float)Math.pow(10, (CALIBRATED_RSSI_DB - rssi) / (10 * RSSI_FACTOR));
     }
 
-    // TODO: implement
+    // TODO: get proper parameters A, H, r, q
+    // Kalman Filter based on paper from AMSEE 2016 conference
+    // "An Indoor Positioning Algorithm Using Bluetooth Low Energy RSSI"
+    // Song Chair, Renbo An and Zhengzhong Du
     private float kalmanFilter(float inputDistance) {
-        float outputDistance = inputDistance;
-        return outputDistance;
+        final float A = 1.0f;
+        final float H = 1.0f;
+        final float r = 1.0f;
+        final float q = 1.0f;
+
+        mOutputDistance = (A * mOutputDistance);
+        mKalmanFilterP = (A * A * mKalmanFilterP) + q;
+        float gain = (mKalmanFilterP * H) / ((mKalmanFilterP * H * H) + r);
+        mKalmanFilterP = (1 - (gain * H)) * mKalmanFilterP;
+        mOutputDistance = mOutputDistance + (gain * (inputDistance - (H * mOutputDistance)));
+
+        return mOutputDistance;
     }
 
     private void updateUserPosition() {
