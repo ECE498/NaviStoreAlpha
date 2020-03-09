@@ -19,26 +19,26 @@ public class CyPhyBeaconReceiver extends CyPhyServiceReceiver {
 
     @Override
     public void onReceivedBeacons(final Collection<ScannedBeacon> collection) {
-        android.util.Log.d("SDKDemoApp", "Service :: onReceivedBeacons.size = " + collection.size());
+        android.util.Log.d("CyPhyBeaconReceiver", "Service :: onReceivedBeacons.size = " + collection.size());
         for(ScannedBeacon sb : collection){
-            android.util.Log.d("SDKDemoApp", "Service :: sb = " + new Gson().toJson(sb));
+            android.util.Log.d("CyPhyBeaconReceiver", "Service :: sb = " + new Gson().toJson(sb));
             BeaconData.getInstance().update(sb);
         }
     }
 
     @Override
     public void cyPhyNavigationBeacon(Collection<NavBeacon> collection) {
-        android.util.Log.d("SDKDemoApp", "Service :: cyPhyNavigationBeacon.size = " + collection.size());
+        android.util.Log.d("CyPhyBeaconReceiver", "Service :: cyPhyNavigationBeacon.size = " + collection.size());
         for(NavBeacon nb : collection){
-            android.util.Log.d("SDKDemoApp", "Service :: nb = " + new Gson().toJson(nb));
+            android.util.Log.d("CyPhyBeaconReceiver", "Service :: nb = " + new Gson().toJson(nb));
         }
     }
 
     @Override
     protected void onReceivedEddystone(Collection<CyPhyEddystoneUID> collection) {
-        android.util.Log.d("SDKDemoApp", "Service :: onReceivedEddystone.size = " + collection.size());
+        android.util.Log.d("CyPhyBeaconReceiver", "Service :: onReceivedEddystone.size = " + collection.size());
         for(CyPhyEddystoneUID sb : collection){
-            android.util.Log.d("SDKDemoApp", "Service :: es = " + new Gson().toJson(sb));
+            android.util.Log.d("CyPhyBeaconReceiver", "Service :: es = " + new Gson().toJson(sb));
         }
     }
 

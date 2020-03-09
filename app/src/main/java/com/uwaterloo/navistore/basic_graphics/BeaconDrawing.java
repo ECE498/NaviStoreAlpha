@@ -14,8 +14,10 @@ public class BeaconDrawing implements Drawing {
     private String mBid;
     private Paint mBeaconPaint;
     private Paint mTextPaint;
+    private Paint mRangePaint;
     private float mCoordinateX;
     private float mCoordinateY;
+    private int mRangeRadius;
 
     public BeaconDrawing(String bid) {
         mBid = bid;
@@ -28,8 +30,14 @@ public class BeaconDrawing implements Drawing {
         mTextPaint.setColor(TEXT_COLOR);
         mTextPaint.setTextSize(TEXT_SIZE);
 
+        mRangePaint = new Paint();
+        mRangePaint.setStyle(Paint.Style.STROKE);
+        mRangePaint.setStrokeWidth(4.0f);
+        mRangePaint.setColor(Color.RED);
+
         mCoordinateX = 0.0f;
         mCoordinateY = 0.0f;
+        mRangeRadius = 25;
     }
 
     public String getBid(){
@@ -44,6 +52,14 @@ public class BeaconDrawing implements Drawing {
         return mCoordinateY;
     }
 
+    public void setRangeRadius(int radius) {
+        mRangeRadius = radius;
+    }
+
+    public void setRangeColor(int color) {
+        mRangePaint.setColor(color);
+    }
+
     public void setCoordinates(float coordinateX, float coordinateY) {
         mCoordinateX = coordinateX;
         mCoordinateY = coordinateY;
@@ -53,5 +69,6 @@ public class BeaconDrawing implements Drawing {
     public void draw(Canvas canvas) {
         canvas.drawCircle(mCoordinateX, mCoordinateY, BEACON_RADIUS, mBeaconPaint);
         canvas.drawText(mBid.substring(mBid.length() - 2), mCoordinateX, mCoordinateY, mTextPaint);
+        canvas.drawCircle(mCoordinateX, mCoordinateY, mRangeRadius, mRangePaint);
     }
 }

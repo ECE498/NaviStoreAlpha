@@ -46,6 +46,7 @@ public class BeaconData {
             mDemoView.registerBeaconDrawing(data.bid);
             android.util.Log.d("BeaconData", "registered beacon drawing");
         }
+        mDemoView.updateBeacon(data);
     }
 
     public void setDemoView(DemoView newDemoView) {
