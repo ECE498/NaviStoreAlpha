@@ -18,11 +18,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
 
-//        FileLogger.getInstance().setContext(this.getApplicationContext());
-//        FileLogger.getInstance().open("NaviStore_log_" + (int) (System.nanoTime() / 1000000000L) + ".csv");
-//        FileLogger.getInstance().logToFile("index,rssi");
+//        setContentView(R.layout.activity_main);
+//        mUserPosition = new UserPosition(null, null);
+//        return;
+
+        FileLogger.getInstance().setContext(this.getApplicationContext());
+        FileLogger.getInstance().open("NaviStore_log_" + (int) (System.nanoTime() / 1000000000L) + ".csv");
+        FileLogger.getInstance().logToFile("index,rssi");
 
         mUserDrawing = new UserDrawing();
         mDemoView = new DemoView(this, mUserDrawing);

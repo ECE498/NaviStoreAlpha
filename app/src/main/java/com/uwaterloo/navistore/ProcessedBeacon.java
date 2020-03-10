@@ -4,13 +4,20 @@ public class ProcessedBeacon {
     public String bid;
     public float rssi;
     public float battery;
+
+    // Used for Kalman Filtering
     public float calculatedDistance;
+    public float kalmanP;
+
+    public float finalDistance;
 
     public ProcessedBeacon(String bid, String rssi, String battery) {
         this.bid = bid;
         this.rssi = Float.parseFloat(rssi);
         this.battery = Float.parseFloat(battery);
-        calculatedDistance = 0.0f;
+        calculatedDistance = 1.0f;
+        kalmanP = 0.0f;
+        finalDistance = 0.0f;
     }
 
     @Override
