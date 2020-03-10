@@ -78,7 +78,9 @@ public class UserPosition implements Runnable {
 
         mRssiData.collectData(processedBeacon.rssi);
         mDistanceData.collectData(processedBeacon.calculatedDistance);
-        FileLogger.getInstance().logToFile(mRssiData.getCounter() - 1 + "," + processedBeacon.rssi);
+        if (mRssiData.getCounter() < 1000) {
+            FileLogger.getInstance().logToFile(mRssiData.getCounter() - 1 + "," + processedBeacon.rssi);
+        }
 //        if ((mRssiData.getCounter() % 10) == 0) {
 //            FileLogger.getInstance().logToFile(mRssiData.toString());
 //            FileLogger.getInstance().logToFile(mDistanceData.toString());
