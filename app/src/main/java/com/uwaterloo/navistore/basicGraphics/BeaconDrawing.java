@@ -1,4 +1,4 @@
-package com.uwaterloo.navistore.basic_graphics;
+package com.uwaterloo.navistore.basicGraphics;
 
 import android.graphics.Canvas;
 import android.graphics.Color;

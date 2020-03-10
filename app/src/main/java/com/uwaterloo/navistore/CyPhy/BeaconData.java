@@ -1,9 +1,8 @@
 package com.uwaterloo.navistore.CyPhy;
 
 import com.cyphymedia.sdk.model.ScannedBeacon;
-import com.uwaterloo.navistore.basic_graphics.DemoView;
+import com.uwaterloo.navistore.basicGraphics.DemoView;
 
-import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 

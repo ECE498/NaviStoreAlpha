@@ -17,6 +17,10 @@ public class DataCollector {
         mCounter = 0;
     }
 
+    public int getCounter() {
+        return mCounter;
+    }
+
     public void collectData(float newValue) {
         if (mCounter < mData.length) {
             mData[mCounter++] = newValue;
@@ -41,5 +45,11 @@ public class DataCollector {
             sumOfSquares += (data[index] * data[index]);
         }
         return sumOfSquares;
+    }
+
+    @Override
+    public String toString() {
+//        return "[" + mCounter + "] mean: " + mCurrentMean + "; std dev: " + mCurrentStandardDeviation;
+        return mCurrentMean + "," + mCurrentStandardDeviation;
     }
 }

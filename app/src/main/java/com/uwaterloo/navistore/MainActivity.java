@@ -3,12 +3,12 @@ package com.uwaterloo.navistore;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.widget.TextView;
 
 import com.uwaterloo.navistore.CyPhy.BeaconScanner;
 import com.uwaterloo.navistore.CyPhy.BeaconData;
-import com.uwaterloo.navistore.basic_graphics.DemoView;
-import com.uwaterloo.navistore.basic_graphics.UserDrawing;
+import com.uwaterloo.navistore.basicGraphics.DemoView;
+import com.uwaterloo.navistore.basicGraphics.UserDrawing;
+import com.uwaterloo.navistore.test.FileLogger;
 
 public class MainActivity extends AppCompatActivity {
     private UserDrawing mUserDrawing;
@@ -19,6 +19,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 //        setContentView(R.layout.activity_main);
+
+        FileLogger.getInstance().setContext(this.getApplicationContext());
+        FileLogger.getInstance().open("NaviStore_log_" + (int) (System.nanoTime() / 1000000000L) + ".csv");
+        FileLogger.getInstance().logToFile("index,rssi");
 
         mUserDrawing = new UserDrawing();
         mDemoView = new DemoView(this, mUserDrawing);

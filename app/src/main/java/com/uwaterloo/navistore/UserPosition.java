@@ -2,9 +2,10 @@ package com.uwaterloo.navistore;
 
 import com.cyphymedia.sdk.model.ScannedBeacon;
 import com.uwaterloo.navistore.CyPhy.BeaconData;
-import com.uwaterloo.navistore.basic_graphics.DemoView;
-import com.uwaterloo.navistore.basic_graphics.UserDrawing;
+import com.uwaterloo.navistore.basicGraphics.DemoView;
+import com.uwaterloo.navistore.basicGraphics.UserDrawing;
 import com.uwaterloo.navistore.test.DataCollector;
+import com.uwaterloo.navistore.test.FileLogger;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -12,8 +13,8 @@ import java.util.PriorityQueue;
 public class UserPosition implements Runnable {
 
     public static final float PIXEL_PER_DISTANCE = 500.0f / 3.0f;
-    // Calibrated RSSI value from a distance of 1 m (300 points of data collected)
-    public static final float CALIBRATED_RSSI_DB = -64.2f;
+    // Calibrated RSSI value from a distance of 1 m (600 points of data collected)
+    public static final float CALIBRATED_RSSI_DB = -59.9f;
     // RSSI factor 'n' in d = 10^((rssi_calibrated - rssi) / (10 * n))
     public static final float RSSI_FACTOR = 2.8f;
 
@@ -73,9 +74,16 @@ public class UserPosition implements Runnable {
     private void processBeaconData(ScannedBeacon beacon) {
         ProcessedBeacon processedBeacon = extractAndUpdateFromBeaconQueue(beacon);
         processedBeacon.calculatedDistance = calculateDistanceFromRssi(processedBeacon.rssi);
-        processedBeacon.calculatedDistance = kalmanFilter(processedBeacon.calculatedDistance);
+//        processedBeacon.calculatedDistance = kalmanFilter(processedBeacon.calculatedDistance);
+
         mRssiData.collectData(processedBeacon.rssi);
         mDistanceData.collectData(processedBeacon.calculatedDistance);
+        FileLogger.getInstance().logToFile(mRssiData.getCounter() - 1 + "," + processedBeacon.rssi);
+//        if ((mRssiData.getCounter() % 10) == 0) {
+//            FileLogger.getInstance().logToFile(mRssiData.toString());
+//            FileLogger.getInstance().logToFile(mDistanceData.toString());
+//        }
+
         mBeaconData.add(processedBeacon);
     }
 

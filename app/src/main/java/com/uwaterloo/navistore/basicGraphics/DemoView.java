@@ -1,4 +1,4 @@
-package com.uwaterloo.navistore.basic_graphics;
+package com.uwaterloo.navistore.basicGraphics;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -13,7 +13,6 @@ import com.uwaterloo.navistore.ProcessedBeacon;
 import com.uwaterloo.navistore.UserPosition;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class DemoView extends View {
