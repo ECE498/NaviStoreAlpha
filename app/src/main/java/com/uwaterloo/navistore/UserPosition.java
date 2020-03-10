@@ -74,16 +74,12 @@ public class UserPosition implements Runnable {
     private void processBeaconData(ScannedBeacon beacon) {
         ProcessedBeacon processedBeacon = extractAndUpdateFromBeaconQueue(beacon);
         processedBeacon.calculatedDistance = calculateDistanceFromRssi(processedBeacon.rssi);
-//        processedBeacon.calculatedDistance = kalmanFilter(processedBeacon.calculatedDistance);
+        processedBeacon.calculatedDistance = kalmanFilter(processedBeacon.calculatedDistance);
 
         mRssiData.collectData(processedBeacon.rssi);
         mDistanceData.collectData(processedBeacon.calculatedDistance);
-        if (mRssiData.getCounter() < 1000) {
-            FileLogger.getInstance().logToFile(mRssiData.getCounter() - 1 + "," + processedBeacon.rssi);
-        }
-//        if ((mRssiData.getCounter() % 10) == 0) {
-//            FileLogger.getInstance().logToFile(mRssiData.toString());
-//            FileLogger.getInstance().logToFile(mDistanceData.toString());
+//        if (mRssiData.getCounter() < 1000) {
+//            FileLogger.getInstance().logToFile(mRssiData.getCounter() - 1 + "," + processedBeacon.rssi);
 //        }
 
         mBeaconData.add(processedBeacon);
@@ -118,10 +114,10 @@ public class UserPosition implements Runnable {
     // "An Indoor Positioning Algorithm Using Bluetooth Low Energy RSSI"
     // Song Chair, Renbo An and Zhengzhong Du
     private float kalmanFilter(float inputDistance) {
-        final float A = 1.0f;
-        final float H = 1.0f;
-        final float r = 1.0f;
-        final float q = 1.0f;
+        final float A = 0.875f;
+        final float H = 0.025f;
+        final float r = 6.08f;
+        final float q = 8.08f;
 
         mOutputDistance = (A * mOutputDistance);
         mKalmanFilterP = (A * A * mKalmanFilterP) + q;

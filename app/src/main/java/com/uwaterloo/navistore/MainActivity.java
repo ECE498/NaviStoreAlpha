@@ -20,9 +20,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 //        setContentView(R.layout.activity_main);
 
-        FileLogger.getInstance().setContext(this.getApplicationContext());
-        FileLogger.getInstance().open("NaviStore_log_" + (int) (System.nanoTime() / 1000000000L) + ".csv");
-        FileLogger.getInstance().logToFile("index,rssi");
+//        FileLogger.getInstance().setContext(this.getApplicationContext());
+//        FileLogger.getInstance().open("NaviStore_log_" + (int) (System.nanoTime() / 1000000000L) + ".csv");
+//        FileLogger.getInstance().logToFile("index,rssi");
 
         mUserDrawing = new UserDrawing();
         mDemoView = new DemoView(this, mUserDrawing);
