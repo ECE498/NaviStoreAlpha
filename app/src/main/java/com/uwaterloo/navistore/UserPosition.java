@@ -30,8 +30,8 @@ public class UserPosition implements Runnable {
     private Coordinate[] mBeaconIntersect;
 
     // Data collection members
-    private DataCollector mRssiData;
-    private DataCollector mDistanceData;
+//    private DataCollector mRssiData;
+//    private DataCollector mDistanceData;
 
     // Current user position
     private Coordinate mPosition;
@@ -60,8 +60,8 @@ public class UserPosition implements Runnable {
             mBeaconIntersect[index] = new Coordinate(0.0f, 0.0f);
         }
 
-        mRssiData = new DataCollector();
-        mDistanceData = new DataCollector();
+//        mRssiData = new DataCollector();
+//        mDistanceData = new DataCollector();
 
         mPosition = new Coordinate(0.0f, 0.0f);
     }
@@ -73,11 +73,11 @@ public class UserPosition implements Runnable {
         processedBeacon.finalDistance = processedBeacon.calculatedDistance * DISTANCE_SCALING_FACTOR;
 //        processedBeacon.finalDistance = inputDistance;
 
-        mRssiData.collectData(processedBeacon.rssi);
-        mDistanceData.collectData(processedBeacon.finalDistance);
-        if (mRssiData.getCounter() < 1000) {
-            FileLogger.getInstance().logToFile(mRssiData.getCounter() - 1 + "," + processedBeacon.rssi);
-        }
+//        mRssiData.collectData(processedBeacon.rssi);
+//        mDistanceData.collectData(processedBeacon.finalDistance);
+//        if (mRssiData.getCounter() < 1000) {
+//            FileLogger.getInstance().logToFile(mRssiData.getCounter() - 1 + "," + processedBeacon.rssi);
+//        }
 
         mBeaconData.add(processedBeacon);
         mDemoView.updateBeacon(processedBeacon);
