@@ -4,10 +4,12 @@ import java.util.HashMap;
 
 // Singleton containing beacon coordinate data
 public class BeaconCoordinates {
+    // Number of pixels per distance (m)
+    public static final float PIXEL_PER_DISTANCE = 600.0f / 3.0f;
     // Offset of each beacon with respect to [0, 0] coordinate
     public static final float INITIAL_OFFSET = 25.0f;
     // Halfway pixel length between adjacent beacons
-    public static final float HALFWAY_LENGTH = 250.0f;
+    public static final float HALFWAY_LENGTH = 300.0f;
 
     private static BeaconCoordinates mBeaconCoordinates = null;
 
@@ -20,23 +22,23 @@ public class BeaconCoordinates {
                 INITIAL_OFFSET + (0 * (2 * HALFWAY_LENGTH)),
                 INITIAL_OFFSET + (0 * (2 * HALFWAY_LENGTH))));
 
-        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32742", new Coordinate(
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32745", new Coordinate(
                 INITIAL_OFFSET + (1 * (2 * HALFWAY_LENGTH)),
                 INITIAL_OFFSET + (0 * (2 * HALFWAY_LENGTH))));
 
-        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32745", new Coordinate(
-                INITIAL_OFFSET + (0 * (2 * HALFWAY_LENGTH)),
-                INITIAL_OFFSET + (1 * (2 * HALFWAY_LENGTH))));
-
         mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32747", new Coordinate(
-                INITIAL_OFFSET + (1 * (2 * HALFWAY_LENGTH)),
+                INITIAL_OFFSET + (0 * (2 * HALFWAY_LENGTH)),
                 INITIAL_OFFSET + (1 * (2 * HALFWAY_LENGTH))));
 
         mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32749", new Coordinate(
+                INITIAL_OFFSET + (1 * (2 * HALFWAY_LENGTH)),
+                INITIAL_OFFSET + (1 * (2 * HALFWAY_LENGTH))));
+
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32750", new Coordinate(
                 INITIAL_OFFSET + (0 * (2 * HALFWAY_LENGTH)),
                 INITIAL_OFFSET + (2 * (2 * HALFWAY_LENGTH))));
 
-        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32750", new Coordinate(
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32757", new Coordinate(
                 INITIAL_OFFSET + (1 * (2 * HALFWAY_LENGTH)),
                 INITIAL_OFFSET + (2 * (2 * HALFWAY_LENGTH))));
     }

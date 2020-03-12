@@ -23,6 +23,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+//        mUserPosition = new UserPosition(null, null);
+//        return;
 
 //        FileLogger.getInstance().setContext(this.getApplicationContext());
 //        FileLogger.getInstance().open("NaviStore_log_" + (int) (System.nanoTime() / 1000000000L) + ".csv");
@@ -47,3 +49,4 @@ public class MainActivity extends AppCompatActivity {
         mWebView.loadUrl("http://www.thingjs.com/s/0a1028033b1bc6339e0e3c86");
     }
 }
+ 

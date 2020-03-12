@@ -13,6 +13,7 @@ import com.uwaterloo.navistore.ProcessedBeacon;
 import com.uwaterloo.navistore.UserPosition;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class DemoView extends View {
@@ -23,7 +24,7 @@ public class DemoView extends View {
     public DemoView(Context context, UserDrawing userDrawing){
         super(context);
         mUserDrawing = userDrawing;
-        mBeaconDrawings = new ArrayList<>();
+        mBeaconDrawings = Collections.synchronizedList(new ArrayList<BeaconDrawing>());
     }
 
     public boolean containsBeacon(String bid) {
@@ -38,9 +39,11 @@ public class DemoView extends View {
     public void registerBeaconDrawing(BeaconDrawing beaconDrawing) {
         String bid = beaconDrawing.getBid();
         if (BeaconCoordinates.getInstance().isBeaconValid(bid)) {
-            mBeaconDrawings.add(beaconDrawing);
             Coordinate beaconPosition = BeaconCoordinates.getInstance().getCoordinate(bid);
             beaconDrawing.setPosition(beaconPosition.mX, beaconPosition.mY);
+            synchronized(mBeaconDrawings) {
+                mBeaconDrawings.add(beaconDrawing);
+            }
         }
     }
 
@@ -49,23 +52,25 @@ public class DemoView extends View {
         registerBeaconDrawing(beaconDrawing);
     }
 
-    public void updateBeacon(ScannedBeacon beacon) {
+    public void updateBeacon(ProcessedBeacon beacon) {
         for (BeaconDrawing beaconDrawing : mBeaconDrawings) {
             if (beaconDrawing.getBid().equals(beacon.bid)) {
-                beaconDrawing.setRangeRadius(Math.round(Float.parseFloat(beacon.distance) * UserPosition.PIXEL_PER_DISTANCE));
+                beaconDrawing.setRangeRadius(Math.round(beacon.finalDistance * BeaconCoordinates.PIXEL_PER_DISTANCE));
             }
         }
         this.postInvalidate();
     }
 
     public void updateFocus(ProcessedBeacon beacon1, ProcessedBeacon beacon2, ProcessedBeacon beacon3) {
-        for (BeaconDrawing beaconDrawing : mBeaconDrawings) {
-            if (((null != beacon1) && beaconDrawing.getBid().equals(beacon1.bid)) ||
-                    ((null != beacon2) && beaconDrawing.getBid().equals(beacon2.bid)) ||
-                    ((null != beacon3) && beaconDrawing.getBid().equals(beacon3.bid))) {
-                beaconDrawing.setRangeColor(Color.BLUE);
-            } else {
-                beaconDrawing.setRangeColor(Color.RED);
+        synchronized(mBeaconDrawings) {
+            for (BeaconDrawing beaconDrawing : mBeaconDrawings) {
+                if (((null != beacon1) && beaconDrawing.getBid().equals(beacon1.bid)) ||
+                        ((null != beacon2) && beaconDrawing.getBid().equals(beacon2.bid)) ||
+                        ((null != beacon3) && beaconDrawing.getBid().equals(beacon3.bid))) {
+                    beaconDrawing.setRangeColor(Color.BLUE);
+                } else {
+                    beaconDrawing.setRangeColor(Color.RED);
+                }
             }
         }
         this.postInvalidate();
