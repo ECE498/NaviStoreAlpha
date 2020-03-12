@@ -28,9 +28,11 @@ public class DemoView extends View {
     }
 
     public boolean containsBeacon(String bid) {
-        for (BeaconDrawing beaconDrawing : mBeaconDrawings) {
-            if (beaconDrawing.getBid().equals(bid)) {
-                return true;
+        synchronized(mBeaconDrawings) {
+            for (BeaconDrawing beaconDrawing : mBeaconDrawings) {
+                if (beaconDrawing.getBid().equals(bid)) {
+                    return true;
+                }
             }
         }
         return false;
@@ -53,9 +55,11 @@ public class DemoView extends View {
     }
 
     public void updateBeacon(ProcessedBeacon beacon) {
-        for (BeaconDrawing beaconDrawing : mBeaconDrawings) {
-            if (beaconDrawing.getBid().equals(beacon.bid)) {
-                beaconDrawing.setRangeRadius(Math.round(beacon.finalDistance * BeaconCoordinates.PIXEL_PER_DISTANCE));
+        synchronized(mBeaconDrawings) {
+            for (BeaconDrawing beaconDrawing : mBeaconDrawings) {
+                if (beaconDrawing.getBid().equals(beacon.bid)) {
+                    beaconDrawing.setRangeRadius(Math.round(beacon.finalDistance * BeaconCoordinates.PIXEL_PER_DISTANCE));
+                }
             }
         }
         this.postInvalidate();
@@ -88,8 +92,10 @@ public class DemoView extends View {
         canvas.drawPaint(paint);
 
         mUserDrawing.draw(canvas);
-        for (BeaconDrawing beaconDrawing : mBeaconDrawings) {
-            beaconDrawing.draw(canvas);
+        synchronized(mBeaconDrawings) {
+            for (BeaconDrawing beaconDrawing : mBeaconDrawings) {
+                beaconDrawing.draw(canvas);
+            }
         }
     }
 }
