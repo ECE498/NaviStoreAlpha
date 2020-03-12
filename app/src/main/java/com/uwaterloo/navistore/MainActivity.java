@@ -3,6 +3,8 @@ package com.uwaterloo.navistore;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 
 import com.uwaterloo.navistore.CyPhy.BeaconScanner;
 import com.uwaterloo.navistore.CyPhy.BeaconData;
@@ -15,23 +17,33 @@ public class MainActivity extends AppCompatActivity {
     private UserPosition mUserPosition;
     private DemoView mDemoView;
 
+    private WebView mWebView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);
 
 //        FileLogger.getInstance().setContext(this.getApplicationContext());
 //        FileLogger.getInstance().open("NaviStore_log_" + (int) (System.nanoTime() / 1000000000L) + ".csv");
 //        FileLogger.getInstance().logToFile("index,rssi");
 
-        mUserDrawing = new UserDrawing();
-        mDemoView = new DemoView(this, mUserDrawing);
-        setContentView(mDemoView);
-        mUserPosition = new UserPosition(mDemoView, mUserDrawing);
-        BeaconData.getInstance().setDemoView(mDemoView);
+//        mUserDrawing = new UserDrawing();
+//        mDemoView = new DemoView(this, mUserDrawing);
+//        setContentView(mDemoView);
+//        mUserPosition = new UserPosition(mDemoView, mUserDrawing);
+//        BeaconData.getInstance().setDemoView(mDemoView);
 
-        Thread userPositionThread = new Thread(mUserPosition);
-        userPositionThread.start();
-        BeaconScanner.getInstance().init(this);
+//        Thread userPositionThread = new Thread(mUserPosition);
+//        userPositionThread.start();
+//
+//        BeaconScanner.getInstance().init(this);
+
+        mWebView = new WebView(this.getApplicationContext());
+        WebSettings webSettings = mWebView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        setContentView(mWebView);
+
+        mWebView.loadUrl("http://www.thingjs.com/s/0a1028033b1bc6339e0e3c86");
     }
 }
