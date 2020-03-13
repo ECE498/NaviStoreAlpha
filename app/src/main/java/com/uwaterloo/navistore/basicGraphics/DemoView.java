@@ -45,7 +45,7 @@ public class DemoView extends View {
         synchronized(mBeaconDrawings) {
             if (BeaconCoordinates.getInstance().isBeaconValid(bid) && !containsBeacon(bid)) {
                 Coordinate beaconPosition = BeaconCoordinates.getInstance().getCoordinate(bid);
-                beaconDrawing.setPosition(beaconPosition.mX, beaconPosition.mY);
+                beaconDrawing.setPosition(beaconPosition.mX * BeaconCoordinates.PIXEL_PER_DISTANCE, beaconPosition.mY * BeaconCoordinates.PIXEL_PER_DISTANCE);
                 mBeaconDrawings.add(beaconDrawing);
                 android.util.Log.d("DemoView", "Registered beacon drawing " + bid);
             }

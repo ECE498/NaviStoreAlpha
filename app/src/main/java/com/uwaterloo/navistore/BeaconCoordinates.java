@@ -4,17 +4,23 @@ import java.util.HashMap;
 
 // Singleton containing beacon coordinate data
 public class BeaconCoordinates {
-    // Number of pixels per distance (m)
+    // Number of pixels per distance (m); for DemoView
     public static final float PIXEL_PER_DISTANCE = 100.0f;
+
+    // Scaling factor for actual distance (m) to map position
+    public static final float MAP_DISTANCE_SCALING_FACTOR = 1.0f;
+
     // Offset of each beacon with respect to [0, 0] coordinate
     public static final float INITIAL_OFFSET_X = PIXEL_PER_DISTANCE / 8.0f;
     public static final float INITIAL_OFFSET_Y = PIXEL_PER_DISTANCE / 8.0f;
+
     // Offset of room position
-    public static final float ROOM_OFFSET_X = (float)(0.6 * PIXEL_PER_DISTANCE);
-    public static final float ROOM_OFFSET_Y = (float)(0.0 * PIXEL_PER_DISTANCE);
+    public static final float ROOM_OFFSET_X = 0.0f;
+    public static final float ROOM_OFFSET_Y = 1.15f;
+
     // Dimension of floor (i.e. width and length)
-    public static final float ROOM_DIMENSION_X = (float)((8.0 - (0.6 * 2.0)) * PIXEL_PER_DISTANCE);
-    public static final float ROOM_DIMENSION_Y = (float)((11.0) * PIXEL_PER_DISTANCE);
+    public static final float ROOM_DIMENSION_X = (float)((11.0));
+    public static final float ROOM_DIMENSION_Y = (float)((10.3 - (1.15 * 2.0)));
 
     private static BeaconCoordinates mBeaconCoordinates = null;
 
@@ -32,56 +38,32 @@ public class BeaconCoordinates {
         // 47, 48, 50, 51
         // 56, 57, 58, 60
 
-        // Column 3
-        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32741", new Coordinate(
-                INITIAL_OFFSET_X + (PIXEL_PER_DISTANCE * 8),
-                INITIAL_OFFSET_Y + (PIXEL_PER_DISTANCE * 0)));
+        // Row 1
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32741", new Coordinate(0.44f, 0.60f));
 
-        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32742", new Coordinate(
-                INITIAL_OFFSET_X + (PIXEL_PER_DISTANCE * 8),
-                INITIAL_OFFSET_Y + (PIXEL_PER_DISTANCE * 3)));
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32742", new Coordinate(3.46f, 0.62f));
 
-        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32743", new Coordinate(
-                INITIAL_OFFSET_X + (PIXEL_PER_DISTANCE * 8),
-                INITIAL_OFFSET_Y + (PIXEL_PER_DISTANCE * 8)));
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32743", new Coordinate(8.47f, 0.6f));
 
-        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32745", new Coordinate(
-                INITIAL_OFFSET_X + (PIXEL_PER_DISTANCE * 8),
-                INITIAL_OFFSET_Y + (PIXEL_PER_DISTANCE * 11)));
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32745", new Coordinate(11.47f, 0.62f));
 
-        // Column 2
-        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32747", new Coordinate(
-                INITIAL_OFFSET_X + (PIXEL_PER_DISTANCE * 4),
-                INITIAL_OFFSET_Y + (PIXEL_PER_DISTANCE * 0)));
+        // Row 2
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32747", new Coordinate(0.47f, 4.45f));
 
-        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32748", new Coordinate(
-                INITIAL_OFFSET_X + (PIXEL_PER_DISTANCE * 4),
-                INITIAL_OFFSET_Y + (PIXEL_PER_DISTANCE * 3)));
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32748", new Coordinate(3.47f, 4.46f));
 
-        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32750", new Coordinate(
-                INITIAL_OFFSET_X + (PIXEL_PER_DISTANCE * 4),
-                INITIAL_OFFSET_Y + (PIXEL_PER_DISTANCE * 8)));
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32750", new Coordinate(8.46f, 4.46f));
 
-        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32751", new Coordinate(
-                INITIAL_OFFSET_X + (PIXEL_PER_DISTANCE * 4),
-                INITIAL_OFFSET_Y + (PIXEL_PER_DISTANCE * 11)));
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32751", new Coordinate(11.47f, 4.47f));
 
-        // Column 1
-        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32756", new Coordinate(
-                INITIAL_OFFSET_X + (PIXEL_PER_DISTANCE * 0),
-                INITIAL_OFFSET_Y + (PIXEL_PER_DISTANCE * 0)));
+        // Row 3
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32756", new Coordinate(0.46f, 8.32f));
 
-        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32757", new Coordinate(
-                INITIAL_OFFSET_X + (PIXEL_PER_DISTANCE * 0),
-                INITIAL_OFFSET_Y + (PIXEL_PER_DISTANCE * 3)));
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32757", new Coordinate(3.47f, 8.34f));
 
-        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32758", new Coordinate(
-                INITIAL_OFFSET_X + (PIXEL_PER_DISTANCE * 0),
-                INITIAL_OFFSET_Y + (PIXEL_PER_DISTANCE * 8)));
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32758", new Coordinate(8.48f, 8.29f));
 
-        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32760", new Coordinate(
-                INITIAL_OFFSET_X + (PIXEL_PER_DISTANCE * 0),
-                INITIAL_OFFSET_Y + (PIXEL_PER_DISTANCE * 11)));
+        mBeaconCoordinateMap.put("43795068-794D-6564-6961-426561636F6E_01710_32760", new Coordinate(11.47f, 8.31f));
     }
 
     public static BeaconCoordinates getInstance() {

@@ -11,6 +11,8 @@ import com.uwaterloo.navistore.webInterface.UserDataPoster;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
+import static com.uwaterloo.navistore.BeaconCoordinates.MAP_DISTANCE_SCALING_FACTOR;
+
 public class UserPosition implements Runnable {
     // Calibrated RSSI value from a distance of 1 m (600 points of data collected)
     public static final float CALIBRATED_RSSI_DB = -59.9f;
@@ -136,11 +138,11 @@ public class UserPosition implements Runnable {
 //        quantizeCoordinates(mPosition);
         repopulateQueue(mClosestBeacons, numClosestBeacons);
 
-        UserDataPoster.getInstance().updatePosition(mPosition.mX, mPosition.mY);
+        UserDataPoster.getInstance().updatePosition(mPosition.mX * MAP_DISTANCE_SCALING_FACTOR, mPosition.mY * MAP_DISTANCE_SCALING_FACTOR);
 
         if (null != mDemoView && null != mUserDrawing) {
             mDemoView.updateFocus(mClosestBeacons[0], mClosestBeacons[1], mClosestBeacons[2]);
-            mUserDrawing.setCoordinates(mPosition.mX, mPosition.mY);
+            mUserDrawing.setCoordinates(mPosition.mX * BeaconCoordinates.PIXEL_PER_DISTANCE, mPosition.mY * BeaconCoordinates.PIXEL_PER_DISTANCE);
             mDemoView.postInvalidate();
         }
     }
@@ -158,18 +160,18 @@ public class UserPosition implements Runnable {
 
         // Triangulate between first two beacons
         if (numClosestBeacons >= 2) {
-            Coordinate firstIntersect = getIntersection(mBeaconIntersect[0].mX, mBeaconIntersect[0].mY, closestBeacons[0].getDistance() * BeaconCoordinates.PIXEL_PER_DISTANCE,
-                    mBeaconIntersect[1].mX, mBeaconIntersect[1].mY, closestBeacons[1].getDistance() * BeaconCoordinates.PIXEL_PER_DISTANCE,
+            Coordinate firstIntersect = getIntersection(mBeaconIntersect[0].mX, mBeaconIntersect[0].mY, closestBeacons[0].getDistance(),
+                    mBeaconIntersect[1].mX, mBeaconIntersect[1].mY, closestBeacons[1].getDistance(),
                     mBeaconIntersect[2].mX, mBeaconIntersect[2].mY);
 
             // Triangulate two beacons with the third
             if (numClosestBeacons >= 3) {
-                Coordinate secondIntersect = getIntersection(mBeaconIntersect[1].mX, mBeaconIntersect[1].mY, closestBeacons[1].getDistance() * BeaconCoordinates.PIXEL_PER_DISTANCE,
-                        mBeaconIntersect[2].mX, mBeaconIntersect[2].mY, closestBeacons[2].getDistance() * BeaconCoordinates.PIXEL_PER_DISTANCE,
+                Coordinate secondIntersect = getIntersection(mBeaconIntersect[1].mX, mBeaconIntersect[1].mY, closestBeacons[1].getDistance(),
+                        mBeaconIntersect[2].mX, mBeaconIntersect[2].mY, closestBeacons[2].getDistance(),
                         mBeaconIntersect[0].mX, mBeaconIntersect[0].mY);
 
-                Coordinate thirdIntersect = getIntersection(mBeaconIntersect[0].mX, mBeaconIntersect[0].mY, closestBeacons[0].getDistance() * BeaconCoordinates.PIXEL_PER_DISTANCE,
-                        mBeaconIntersect[2].mX, mBeaconIntersect[2].mY, closestBeacons[2].getDistance() * BeaconCoordinates.PIXEL_PER_DISTANCE,
+                Coordinate thirdIntersect = getIntersection(mBeaconIntersect[0].mX, mBeaconIntersect[0].mY, closestBeacons[0].getDistance(),
+                        mBeaconIntersect[2].mX, mBeaconIntersect[2].mY, closestBeacons[2].getDistance(),
                         mBeaconIntersect[1].mX, mBeaconIntersect[1].mY);
 
                 mBeaconIntersect[1] = secondIntersect;
@@ -263,16 +265,16 @@ public class UserPosition implements Runnable {
     }
 
     private void containWithinBorders(Coordinate point) {
-        if (point.mX < BeaconCoordinates.INITIAL_OFFSET_X) {
-            point.mX = BeaconCoordinates.INITIAL_OFFSET_X;
-        } else if (point.mX > (BeaconCoordinates.INITIAL_OFFSET_X + BeaconCoordinates.ROOM_DIMENSION_X)) {
-            point.mX = (BeaconCoordinates.INITIAL_OFFSET_X + BeaconCoordinates.ROOM_DIMENSION_X);
+        if (point.mX < BeaconCoordinates.ROOM_OFFSET_X) {
+            point.mX = BeaconCoordinates.ROOM_OFFSET_X;
+        } else if (point.mX > (BeaconCoordinates.ROOM_OFFSET_X + BeaconCoordinates.ROOM_DIMENSION_X)) {
+            point.mX = (BeaconCoordinates.ROOM_OFFSET_X + BeaconCoordinates.ROOM_DIMENSION_X);
         }
 
-        if (point.mY < BeaconCoordinates.INITIAL_OFFSET_Y) {
-            point.mY = BeaconCoordinates.INITIAL_OFFSET_Y;
-        } else if (point.mY > (BeaconCoordinates.INITIAL_OFFSET_Y + BeaconCoordinates.ROOM_DIMENSION_Y)) {
-            point.mY = (BeaconCoordinates.INITIAL_OFFSET_Y + BeaconCoordinates.ROOM_DIMENSION_Y);
+        if (point.mY < BeaconCoordinates.ROOM_OFFSET_Y) {
+            point.mY = BeaconCoordinates.ROOM_OFFSET_Y;
+        } else if (point.mY > (BeaconCoordinates.ROOM_OFFSET_Y + BeaconCoordinates.ROOM_DIMENSION_Y)) {
+            point.mY = (BeaconCoordinates.ROOM_OFFSET_Y + BeaconCoordinates.ROOM_DIMENSION_Y);
         }
     }
 
