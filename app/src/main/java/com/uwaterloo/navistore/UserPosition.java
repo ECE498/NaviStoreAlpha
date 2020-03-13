@@ -6,6 +6,7 @@ import com.uwaterloo.navistore.basicGraphics.DemoView;
 import com.uwaterloo.navistore.basicGraphics.UserDrawing;
 import com.uwaterloo.navistore.test.DataCollector;
 import com.uwaterloo.navistore.test.FileLogger;
+import com.uwaterloo.navistore.webInterface.UserDataPoster;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -128,6 +129,9 @@ public class UserPosition implements Runnable {
         triangulate(mClosestBeacons, numClosestBeacons, mPosition);
 //        quantizeCoordinates(mPosition);
         repopulateQueue(mClosestBeacons, numClosestBeacons);
+
+        // TODO: implement getting orientation relative to magnetic North
+        UserDataPoster.getInstance().updateData(mPosition.mX, mPosition.mY, 0.0f);
 
         mDemoView.updateFocus(mClosestBeacons[0], mClosestBeacons[1], mClosestBeacons[2]);
         mUserDrawing.setCoordinates(mPosition.mX, mPosition.mY);
@@ -273,7 +277,7 @@ public class UserPosition implements Runnable {
             }
 
             numClosestBeacons++;
-            android.util.Log.d("UserPosition", "closest beacon [" + index + "]: " + closestBeacons[index].bid.substring(closestBeacons[index].bid.length() - 2) + " | " + closestBeacons[index].finalDistance);
+//            android.util.Log.d("UserPosition", "closest beacon [" + index + "]: " + closestBeacons[index].bid.substring(closestBeacons[index].bid.length() - 2) + " | " + closestBeacons[index].finalDistance);
         }
 
         return numClosestBeacons;

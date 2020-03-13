@@ -29,4 +29,5 @@ dependencies {
     implementation 'de.greenrobot:greendao:2.0.0'
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation files( 'libs/CyPhy_SDK_3.32.jar' )
+    implementation 'com.android.volley:volley:1.1.1'
 }

@@ -6,7 +6,7 @@ import com.uwaterloo.navistore.basicGraphics.DemoView;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-/**TODO: This can be changed to how we want to handle/manage the Bluetooth beacon data
+/**
  * Singleton BeaconData class. Receives beacon data from the CyPhy callback functions
  */
 public class BeaconData {
