@@ -28,23 +28,26 @@ public class DemoView extends View {
     }
 
     public boolean containsBeacon(String bid) {
+        boolean returnValue = false;
         synchronized(mBeaconDrawings) {
             for (BeaconDrawing beaconDrawing : mBeaconDrawings) {
                 if (beaconDrawing.getBid().equals(bid)) {
-                    return true;
+                    returnValue = true;
+                    break;
                 }
             }
         }
-        return false;
+        return returnValue;
     }
 
     public void registerBeaconDrawing(BeaconDrawing beaconDrawing) {
         String bid = beaconDrawing.getBid();
-        if (BeaconCoordinates.getInstance().isBeaconValid(bid)) {
-            Coordinate beaconPosition = BeaconCoordinates.getInstance().getCoordinate(bid);
-            beaconDrawing.setPosition(beaconPosition.mX, beaconPosition.mY);
-            synchronized(mBeaconDrawings) {
+        synchronized(mBeaconDrawings) {
+            if (BeaconCoordinates.getInstance().isBeaconValid(bid) && !containsBeacon(bid)) {
+                Coordinate beaconPosition = BeaconCoordinates.getInstance().getCoordinate(bid);
+                beaconDrawing.setPosition(beaconPosition.mX, beaconPosition.mY);
                 mBeaconDrawings.add(beaconDrawing);
+                android.util.Log.d("DemoView", "Registered beacon drawing " + bid);
             }
         }
     }
@@ -59,6 +62,7 @@ public class DemoView extends View {
             for (BeaconDrawing beaconDrawing : mBeaconDrawings) {
                 if (beaconDrawing.getBid().equals(beacon.bid)) {
                     beaconDrawing.setRangeRadius(Math.round(beacon.finalDistance * BeaconCoordinates.PIXEL_PER_DISTANCE));
+                    break;
                 }
             }
         }

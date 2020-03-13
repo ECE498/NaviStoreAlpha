@@ -1,6 +1,7 @@
 package com.uwaterloo.navistore.CyPhy;
 
 import com.cyphymedia.sdk.model.ScannedBeacon;
+import com.uwaterloo.navistore.BeaconCoordinates;
 import com.uwaterloo.navistore.basicGraphics.DemoView;
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -35,17 +36,20 @@ public class BeaconData {
     public void update(ScannedBeacon data) {
 //        android.util.Log.d("BeaconData", "update");
 
-        try {
-            mBeaconData.add(data);
-        } catch (IllegalStateException e) {
-            android.util.Log.e("BeaconData", "adding to queue", e);
-        }
+        if (null != mDemoView) {
+            if (!mDemoView.containsBeacon(data.bid)) {
+                mDemoView.registerBeaconDrawing(data.bid);
+            }
 
-        if (!mDemoView.containsBeacon(data.bid)) {
-            mDemoView.registerBeaconDrawing(data.bid);
-            android.util.Log.d("BeaconData", "registered beacon drawing");
+            try {
+                if (BeaconCoordinates.getInstance().isBeaconValid(data.bid)) {
+                    mBeaconData.add(data);
+                }
+            } catch (IllegalStateException e) {
+                android.util.Log.e("BeaconData", "adding to queue", e);
+            }
+//            mDemoView.updateBeacon(data);
         }
-//        mDemoView.updateBeacon(data);
     }
 
     public void setDemoView(DemoView newDemoView) {

@@ -2,6 +2,7 @@ package com.uwaterloo.navistore;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -29,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
 //        FileLogger.getInstance().setContext(this.getApplicationContext());
 //        FileLogger.getInstance().open("NaviStore_log_" + (int) (System.nanoTime() / 1000000000L) + ".csv");
 //        FileLogger.getInstance().logToFile("index,rssi");
+
+        OrientationSensor.getInstance(this.getApplicationContext());
 
         UserDataPoster.init(this.getApplicationContext());
         Thread userDataPosterThread = new Thread(UserDataPoster.getInstance());

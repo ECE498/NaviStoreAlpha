@@ -6,6 +6,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
+import com.uwaterloo.navistore.OrientationSensor;
 import com.uwaterloo.navistore.R;
 
 import org.json.JSONException;
@@ -79,6 +80,13 @@ public class UserDataPoster implements Runnable {
         }
     }
 
+    public void updatePosition(float x, float y) {
+        synchronized(mPostRequestData) {
+            mUserX = x;
+            mUserY = y;
+        }
+    }
+
     public static void init(Context context) {
         mPoster = new UserDataPoster(context);
     }
@@ -99,6 +107,8 @@ public class UserDataPoster implements Runnable {
             } catch (InterruptedException e) {
                 android.util.Log.e("UserDataPoster", "sleep: ", e);
             }
+
+            mUserOrientation = OrientationSensor.getInstance(mContext).getOrientation();
 
             try {
                 synchronized(mPostRequestData) {

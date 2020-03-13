@@ -130,8 +130,7 @@ public class UserPosition implements Runnable {
 //        quantizeCoordinates(mPosition);
         repopulateQueue(mClosestBeacons, numClosestBeacons);
 
-        // TODO: implement getting orientation relative to magnetic North
-        UserDataPoster.getInstance().updateData(mPosition.mX, mPosition.mY, 0.0f);
+        UserDataPoster.getInstance().updatePosition(mPosition.mX, mPosition.mY);
 
         mDemoView.updateFocus(mClosestBeacons[0], mClosestBeacons[1], mClosestBeacons[2]);
         mUserDrawing.setCoordinates(mPosition.mX, mPosition.mY);
