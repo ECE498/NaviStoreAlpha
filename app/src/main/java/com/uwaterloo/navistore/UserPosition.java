@@ -81,7 +81,9 @@ public class UserPosition implements Runnable {
 //        }
 
         mBeaconData.add(processedBeacon);
-        mDemoView.updateBeacon(processedBeacon);
+        if (null != mDemoView) {
+            mDemoView.updateBeacon(processedBeacon);
+        }
     }
 
     private ProcessedBeacon extractAndUpdateFromBeaconQueue(ScannedBeacon beacon) {
@@ -132,9 +134,11 @@ public class UserPosition implements Runnable {
 
         UserDataPoster.getInstance().updatePosition(mPosition.mX, mPosition.mY);
 
-        mDemoView.updateFocus(mClosestBeacons[0], mClosestBeacons[1], mClosestBeacons[2]);
-        mUserDrawing.setCoordinates(mPosition.mX, mPosition.mY);
-        mDemoView.postInvalidate();
+        if (null != mDemoView && null != mUserDrawing) {
+            mDemoView.updateFocus(mClosestBeacons[0], mClosestBeacons[1], mClosestBeacons[2]);
+            mUserDrawing.setCoordinates(mPosition.mX, mPosition.mY);
+            mDemoView.postInvalidate();
+        }
     }
 
     // @sideeffect Update 'position' with newly-triangulated user position

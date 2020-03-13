@@ -46,7 +46,6 @@ public class OrientationSensor implements SensorEventListener {
     public float getOrientation() {
         mSensorManager.getRotationMatrix(mRotationMatrix, null, mAccelerometerVector, mMagneticFieldVector);
         mSensorManager.getOrientation(mRotationMatrix, mOrientationVector);
-        prettyPrint(mOrientationVector);
         return convertToDegrees(mOrientationVector[0]);
     }
 

@@ -14,11 +14,11 @@ import com.uwaterloo.navistore.basicGraphics.UserDrawing;
 import com.uwaterloo.navistore.webInterface.UserDataPoster;
 
 public class MainActivity extends AppCompatActivity {
-    private UserDrawing mUserDrawing;
-    private UserPosition mUserPosition;
-    private DemoView mDemoView;
+    private UserDrawing mUserDrawing = null;
+    private UserPosition mUserPosition = null;
+    private DemoView mDemoView = null;
 
-    private WebView mWebView;
+    private WebView mWebView = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +37,10 @@ public class MainActivity extends AppCompatActivity {
         Thread userDataPosterThread = new Thread(UserDataPoster.getInstance());
         userDataPosterThread.start();
 
-        mUserDrawing = new UserDrawing();
-        mDemoView = new DemoView(this, mUserDrawing);
-        setContentView(mDemoView);
+//        mUserDrawing = new UserDrawing();
+//        mDemoView = new DemoView(this, mUserDrawing);
+//        setContentView(mDemoView);
+
         mUserPosition = new UserPosition(mDemoView, mUserDrawing);
         BeaconData.getInstance().setDemoView(mDemoView);
 
@@ -48,11 +49,11 @@ public class MainActivity extends AppCompatActivity {
 
         BeaconScanner.getInstance().init(this);
 
-//        mWebView = new WebView(this.getApplicationContext());
-//        WebSettings webSettings = mWebView.getSettings();
-//        webSettings.setJavaScriptEnabled(true);
-//        setContentView(mWebView);
-//        mWebView.loadUrl(UserDataPoster.NAVISTORE_SITE_URL);
+        mWebView = new WebView(this.getApplicationContext());
+        WebSettings webSettings = mWebView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        setContentView(mWebView);
+        mWebView.loadUrl(UserDataPoster.NAVISTORE_SITE_URL);
     }
 }
  

@@ -15,7 +15,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 
 public class UserDataPoster implements Runnable {
-    public static String NAVISTORE_SITE_URL = "http://www.thingjs.com/s/0a1028033b1bc6339e0e3c86";
+    public static String NAVISTORE_SITE_URL = "http://www.thingjs.com/s/32dbcf1baba90cc14c2479c2";
     public static String NAVISTORE_SERVER_URL = "http://3.209.66.199:3000/";
 
     private static UserDataPoster mPoster = null;

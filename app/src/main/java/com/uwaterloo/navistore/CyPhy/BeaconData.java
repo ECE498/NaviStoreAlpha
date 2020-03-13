@@ -40,16 +40,16 @@ public class BeaconData {
             if (!mDemoView.containsBeacon(data.bid)) {
                 mDemoView.registerBeaconDrawing(data.bid);
             }
-
-            try {
-                if (BeaconCoordinates.getInstance().isBeaconValid(data.bid)) {
-                    mBeaconData.add(data);
-                }
-            } catch (IllegalStateException e) {
-                android.util.Log.e("BeaconData", "adding to queue", e);
-            }
-//            mDemoView.updateBeacon(data);
         }
+
+        try {
+            if (BeaconCoordinates.getInstance().isBeaconValid(data.bid)) {
+                mBeaconData.add(data);
+            }
+        } catch (IllegalStateException e) {
+            android.util.Log.e("BeaconData", "adding to queue", e);
+        }
+//        mDemoView.updateBeacon(data);
     }
 
     public void setDemoView(DemoView newDemoView) {
