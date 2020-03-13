@@ -17,8 +17,10 @@ public class BeaconDrawing implements Drawing {
     private Paint mBeaconPaint;
     private Paint mTextPaint;
     private Paint mRangePaint;
+    private Paint mNeoRangePaint;
     private Coordinate mPosition;
     private int mRangeRadius;
+    private int mNeoRangeRadius;
 
     public BeaconDrawing(String bid) {
         mBid = bid;
@@ -35,6 +37,11 @@ public class BeaconDrawing implements Drawing {
         mRangePaint.setStyle(Paint.Style.STROKE);
         mRangePaint.setStrokeWidth(4.0f);
         mRangePaint.setColor(Color.RED);
+
+        mNeoRangePaint = new Paint();
+        mNeoRangePaint.setStyle(Paint.Style.STROKE);
+        mNeoRangePaint.setStrokeWidth(4.0f);
+        mNeoRangePaint.setColor(Color.GRAY);
 
         mPosition = new Coordinate();
         mRangeRadius = 25;
@@ -54,6 +61,10 @@ public class BeaconDrawing implements Drawing {
         mRangePaint.setColor(color);
     }
 
+    public void setNeoRangeRadius(int radius) {
+        mNeoRangeRadius = radius;
+    }
+
     public void setPosition(float coordinateX, float coordinateY) {
         mPosition.mX = coordinateX;
         mPosition.mY = coordinateY;
@@ -63,6 +74,7 @@ public class BeaconDrawing implements Drawing {
     public void draw(Canvas canvas) {
         canvas.drawCircle(mPosition.mX, mPosition.mY, BEACON_RADIUS, mBeaconPaint);
         canvas.drawText(mBid.substring(mBid.length() - 2), mPosition.mX, mPosition.mY, mTextPaint);
+        canvas.drawCircle(mPosition.mX, mPosition.mY, mNeoRangeRadius, mNeoRangePaint);
         canvas.drawCircle(mPosition.mX, mPosition.mY, mRangeRadius, mRangePaint);
     }
 }

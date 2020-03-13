@@ -62,6 +62,7 @@ public class DemoView extends View {
             for (BeaconDrawing beaconDrawing : mBeaconDrawings) {
                 if (beaconDrawing.getBid().equals(beacon.bid)) {
                     beaconDrawing.setRangeRadius(Math.round(beacon.finalDistance * BeaconCoordinates.PIXEL_PER_DISTANCE));
+                    beaconDrawing.setNeoRangeRadius(Math.round(beacon.getDistance() * BeaconCoordinates.PIXEL_PER_DISTANCE));
                     break;
                 }
             }

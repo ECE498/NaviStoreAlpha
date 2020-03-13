@@ -15,7 +15,7 @@ public class UserPosition implements Runnable {
     // Calibrated RSSI value from a distance of 1 m (600 points of data collected)
     public static final float CALIBRATED_RSSI_DB = -59.9f;
     // RSSI factor 'n' in d = 10^((rssi_calibrated - rssi) / (10 * n))
-    public static final float RSSI_FACTOR = 2.3f;
+    public static final float RSSI_FACTOR = 2.8f;
     // Scaling factor to correct for errors post-Kalman filter
     public static final float DISTANCE_SCALING_FACTOR = 1.0f;
 
@@ -70,7 +70,7 @@ public class UserPosition implements Runnable {
     private void processBeaconData(ScannedBeacon beacon) {
         ProcessedBeacon processedBeacon = extractAndUpdateFromBeaconQueue(beacon);
         float inputDistance = calculateDistanceFromRssi(processedBeacon.rssi);
-        kalmanFilter(processedBeacon, inputDistance);
+        kalmanFilter(processedBeacon, (inputDistance));
         processedBeacon.finalDistance = processedBeacon.calculatedDistance * DISTANCE_SCALING_FACTOR;
 //        processedBeacon.finalDistance = inputDistance;
 
@@ -80,6 +80,7 @@ public class UserPosition implements Runnable {
 //            FileLogger.getInstance().logToFile(mRssiData.getCounter() - 1 + "," + processedBeacon.rssi);
 //        }
 
+        processedBeacon.iterationCounter = 0;
         mBeaconData.add(processedBeacon);
         mDemoView.updateBeacon(processedBeacon);
     }
@@ -96,7 +97,7 @@ public class UserPosition implements Runnable {
             processedBeacon.rssi = Float.parseFloat(beacon.rssi);
             processedBeacon.battery = Float.parseFloat(beacon.battery);
             if (!mBeaconData.remove(processedBeacon)) {
-                android.util.Log.d("UserPosition", "Existing ProcessedBeacon was not removed");
+                android.util.Log.w("UserPosition", "Existing ProcessedBeacon was not removed");
             }
         } else {
             processedBeacon = new ProcessedBeacon(beacon.bid, beacon.rssi, beacon.battery);
@@ -114,8 +115,10 @@ public class UserPosition implements Runnable {
     private void kalmanFilter(ProcessedBeacon beacon, float inputDistance) {
         final float A = 0.875f;
         final float H = 0.025f;
-        final float r = 6.08f;
-        final float q = 8.08f;
+//        final float r = 6.08f;
+//        final float q = 8.08f;
+        final float r = 6.0f;
+        final float q = 8.0f;
 
         beacon.calculatedDistance = (A * beacon.calculatedDistance);
         beacon.kalmanP = (A * A * beacon.kalmanP) + q;
@@ -127,6 +130,7 @@ public class UserPosition implements Runnable {
     private void updateUserPosition() {
         int numClosestBeacons = getClosestBeacons(mClosestBeacons);
         triangulate(mClosestBeacons, numClosestBeacons, mPosition);
+        containWithinBorders(mPosition);
 //        quantizeCoordinates(mPosition);
         repopulateQueue(mClosestBeacons, numClosestBeacons);
 
@@ -150,18 +154,18 @@ public class UserPosition implements Runnable {
 
         // Triangulate between first two beacons
         if (numClosestBeacons >= 2) {
-            Coordinate firstIntersect = getIntersection(mBeaconIntersect[0].mX, mBeaconIntersect[0].mY, closestBeacons[0].finalDistance * BeaconCoordinates.PIXEL_PER_DISTANCE,
-                    mBeaconIntersect[1].mX, mBeaconIntersect[1].mY, closestBeacons[1].finalDistance * BeaconCoordinates.PIXEL_PER_DISTANCE,
+            Coordinate firstIntersect = getIntersection(mBeaconIntersect[0].mX, mBeaconIntersect[0].mY, closestBeacons[0].getDistance() * BeaconCoordinates.PIXEL_PER_DISTANCE,
+                    mBeaconIntersect[1].mX, mBeaconIntersect[1].mY, closestBeacons[1].getDistance() * BeaconCoordinates.PIXEL_PER_DISTANCE,
                     mBeaconIntersect[2].mX, mBeaconIntersect[2].mY);
 
             // Triangulate two beacons with the third
             if (numClosestBeacons >= 3) {
-                Coordinate secondIntersect = getIntersection(mBeaconIntersect[1].mX, mBeaconIntersect[1].mY, closestBeacons[1].finalDistance * BeaconCoordinates.PIXEL_PER_DISTANCE,
-                        mBeaconIntersect[2].mX, mBeaconIntersect[2].mY, closestBeacons[2].finalDistance * BeaconCoordinates.PIXEL_PER_DISTANCE,
+                Coordinate secondIntersect = getIntersection(mBeaconIntersect[1].mX, mBeaconIntersect[1].mY, closestBeacons[1].getDistance() * BeaconCoordinates.PIXEL_PER_DISTANCE,
+                        mBeaconIntersect[2].mX, mBeaconIntersect[2].mY, closestBeacons[2].getDistance() * BeaconCoordinates.PIXEL_PER_DISTANCE,
                         mBeaconIntersect[0].mX, mBeaconIntersect[0].mY);
 
-                Coordinate thirdIntersect = getIntersection(mBeaconIntersect[0].mX, mBeaconIntersect[0].mY, closestBeacons[0].finalDistance * BeaconCoordinates.PIXEL_PER_DISTANCE,
-                        mBeaconIntersect[2].mX, mBeaconIntersect[2].mY, closestBeacons[2].finalDistance * BeaconCoordinates.PIXEL_PER_DISTANCE,
+                Coordinate thirdIntersect = getIntersection(mBeaconIntersect[0].mX, mBeaconIntersect[0].mY, closestBeacons[0].getDistance() * BeaconCoordinates.PIXEL_PER_DISTANCE,
+                        mBeaconIntersect[2].mX, mBeaconIntersect[2].mY, closestBeacons[2].getDistance() * BeaconCoordinates.PIXEL_PER_DISTANCE,
                         mBeaconIntersect[1].mX, mBeaconIntersect[1].mY);
 
                 mBeaconIntersect[1] = secondIntersect;
@@ -254,10 +258,25 @@ public class UserPosition implements Runnable {
         center.mY /= numPoints;
     }
 
+    private void containWithinBorders(Coordinate point) {
+        if (point.mX < BeaconCoordinates.INITIAL_OFFSET_X) {
+            point.mX = BeaconCoordinates.INITIAL_OFFSET_X;
+        } else if (point.mX > (BeaconCoordinates.INITIAL_OFFSET_X + BeaconCoordinates.ROOM_DIMENSION_X)) {
+            point.mX = (BeaconCoordinates.INITIAL_OFFSET_X + BeaconCoordinates.ROOM_DIMENSION_X);
+        }
+
+        if (point.mY < BeaconCoordinates.INITIAL_OFFSET_Y) {
+            point.mY = BeaconCoordinates.INITIAL_OFFSET_Y;
+        } else if (point.mY > (BeaconCoordinates.INITIAL_OFFSET_Y + BeaconCoordinates.ROOM_DIMENSION_Y)) {
+            point.mY = (BeaconCoordinates.INITIAL_OFFSET_Y + BeaconCoordinates.ROOM_DIMENSION_Y);
+        }
+    }
+
     // @sideeffect Update 'point' with quantized coordinates
+    // FIXME: quantization must be updated
     private void quantizeCoordinates(Coordinate point) {
-        point.mX = Math.round((point.mX - BeaconCoordinates.INITIAL_OFFSET) / BeaconCoordinates.HALFWAY_LENGTH) * (int)BeaconCoordinates.HALFWAY_LENGTH + (int)BeaconCoordinates.INITIAL_OFFSET;
-        point.mY = Math.round((point.mY - BeaconCoordinates.INITIAL_OFFSET) / BeaconCoordinates.HALFWAY_LENGTH) * (int)(BeaconCoordinates.HALFWAY_LENGTH) + (int)BeaconCoordinates.INITIAL_OFFSET;
+//        point.mX = Math.round((point.mX - BeaconCoordinates.INITIAL_OFFSET) / BeaconCoordinates.HALFWAY_LENGTH) * (int)BeaconCoordinates.HALFWAY_LENGTH + (int)BeaconCoordinates.INITIAL_OFFSET;
+//        point.mY = Math.round((point.mY - BeaconCoordinates.INITIAL_OFFSET) / BeaconCoordinates.HALFWAY_LENGTH) * (int)(BeaconCoordinates.HALFWAY_LENGTH) + (int)BeaconCoordinates.INITIAL_OFFSET;
     }
 
     // Get closest beacons to perform positioning algorithm on; may be equal to or less then array length
@@ -285,6 +304,7 @@ public class UserPosition implements Runnable {
     // Repopulate priority queue with the closest beacons
     private void repopulateQueue(ProcessedBeacon[] closestBeacons, int numClosestBeacons) {
         for (int index = 0; index < numClosestBeacons; index++) {
+            closestBeacons[index].iterationCounter++;
             mBeaconData.add(closestBeacons[index]);
         }
     }
